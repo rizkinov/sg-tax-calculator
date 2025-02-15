@@ -3,9 +3,16 @@
 import { formatCurrency } from "@/lib/utils";
 import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
-import { ExternalLinkIcon, PartyPopper, Trophy } from "lucide-react";
+import { ExternalLinkIcon, PartyPopper, Trophy, Sparkles, ExternalLink, Info } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -34,13 +41,26 @@ export function TaxSavingSuggestions({
   const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
   const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
 
-  // Check if relief is already maximized
-  const isMaximized = currentRelief >= TOTAL_MAX_RELIEF || 
-    (citizenshipStatus === 'FOREIGNER' && currentRelief >= MAX_SRS);
+  // Check if relief is already maximized (updated logic)
+  const isMaximized = citizenshipStatus === 'FOREIGNER' 
+    ? currentRelief >= MAX_SRS 
+    : currentRelief >= TOTAL_MAX_RELIEF;
+
+  console.log({
+    currentRelief,
+    MAX_SRS,
+    MAX_CPF_RELIEF,
+    TOTAL_MAX_RELIEF,
+    remainingSRSCapacity,
+    remainingCPFCapacity,
+    isMaximized,
+    citizenshipStatus
+  });
 
   // Early returns
   if (taxableIncome <= 20000) return null;
-  if (remainingReliefCapacity <= 0 && !isMaximized) return null;
+  // Remove this condition to always show the card when maximized
+  // if (remainingReliefCapacity <= 0 && !isMaximized) return null;
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
@@ -83,43 +103,131 @@ export function TaxSavingSuggestions({
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
         {isMaximized ? (
-          <>
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy className="h-5 w-5 text-yellow-500" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <motion.div 
+              className="flex items-center gap-2"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 0.5, times: [0, 0.5, 1] }}
+            >
+              <Trophy className="h-6 w-6 text-yellow-500" />
               <h3 className="font-semibold text-lg">Congratulations!</h3>
+              <motion.div
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+              >
+                <Sparkles className="h-5 w-5 text-yellow-500" />
+              </motion.div>
+            </motion.div>
+
+            <div className="space-y-4">
+              <div className="bg-primary/5 rounded-lg p-4">
+                <p className="font-medium">
+                  You have maximized your {citizenshipStatus === 'FOREIGNER' ? 'SRS contributions' : 'tax relief contributions'}!
+                </p>
+                
+                <div className="mt-4 space-y-3">
+                  <h4 className="font-medium text-sm">Current Utilization</h4>
+                  {citizenshipStatus === 'CITIZEN_PR' ? (
+                    <>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>SRS Contributions</span>
+                            <span className="font-medium">${formatCurrency(Math.min(currentRelief, MAX_SRS))} / ${formatCurrency(MAX_SRS)}</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary rounded-full transition-all"
+                              style={{ width: `${(Math.min(currentRelief, MAX_SRS) / MAX_SRS) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>CPF Cash Top-up</span>
+                            <span className="font-medium">${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} / ${formatCurrency(MAX_CPF_RELIEF)}</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary rounded-full transition-all"
+                              style={{ width: `${(Math.max(0, currentRelief - MAX_SRS) / MAX_CPF_RELIEF) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>SRS Contributions</span>
+                        <span className="font-medium">${formatCurrency(currentRelief)} / ${formatCurrency(MAX_SRS)}</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary rounded-full transition-all"
+                          style={{ width: `${(currentRelief / MAX_SRS) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-medium flex items-center gap-2">
+                  Other Tax Relief Options
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </HoverCardTrigger>
+                    <HoverCardContent>
+                      These additional reliefs can help you save more on taxes, even after maximizing your {citizenshipStatus === 'FOREIGNER' ? 'SRS' : 'CPF and SRS'} contributions.
+                    </HoverCardContent>
+                  </HoverCard>
+                </h4>
+                <div className="grid gap-2">
+                  <Button variant="outline" className="justify-start" asChild>
+                    <a 
+                      href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/course-fees-relief"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
+                      Course Fees Relief
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button variant="outline" className="justify-start" asChild>
+                    <a 
+                      href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/parent-relief"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
+                      Parent Relief
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button variant="outline" className="justify-start" asChild>
+                    <a 
+                      href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/working-mother-s-child-relief-(wmcr)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
+                      Working Mother's Child Relief
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <p>
-                You have maximized your {citizenshipStatus === 'FOREIGNER' ? 'SRS contributions' : 'tax relief contributions'}!
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Current utilization:
-                {citizenshipStatus === 'CITIZEN_PR' ? (
-                  <ul className="list-disc ml-6 mt-1 space-y-1">
-                    <li>
-                      SRS: ${formatCurrency(Math.min(currentRelief, MAX_SRS))} 
-                      of ${formatCurrency(MAX_SRS)}
-                    </li>
-                    <li>
-                      CPF Cash Top-up: ${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} 
-                      of ${formatCurrency(MAX_CPF_RELIEF)}
-                    </li>
-                    <li className="font-medium">
-                      Total: ${formatCurrency(currentRelief)} 
-                      of ${formatCurrency(TOTAL_MAX_RELIEF)}
-                    </li>
-                  </ul>
-                ) : (
-                  <ul className="list-disc ml-6 mt-1">
-                    <li>
-                      SRS: ${formatCurrency(currentRelief)} 
-                      of ${formatCurrency(MAX_SRS)}
-                    </li>
-                  </ul>
-                )}
-              </p>
-            </div>
-          </>
+          </motion.div>
         ) : canReachLowerBracket ? (
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
