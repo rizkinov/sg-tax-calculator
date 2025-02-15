@@ -10,6 +10,9 @@ export const taxCalculatorSchema = z.object({
   taxpayerType: z.enum(['EMPLOYEE', 'SOLE_PROPRIETOR', 'CORPORATION'], {
     required_error: 'Please select a taxpayer type',
   }),
+  citizenshipStatus: z.enum(['CITIZEN_PR', 'FOREIGNER'], {
+    required_error: 'Please select your citizenship status',
+  }),
   cpfTopUp: z.number()
     .min(0, 'CPF top-up must be a positive number')
     .max(16000, 'Maximum CPF top-up relief is $16,000 ($8,000 for own account and $8,000 for family members)')
@@ -17,9 +20,23 @@ export const taxCalculatorSchema = z.object({
     .default(0),
   srsContribution: z.number()
     .min(0, 'SRS contribution must be a positive number')
-    .max(35700, 'Maximum SRS contribution is $15,300 for Citizens & PR, and $35,700 for Foreigners')
     .optional()
-    .default(0),
+    .default(0)
+    .superRefine((val, ctx) => {
+      const parentForm = ctx.parent as { citizenshipStatus?: string };
+      const maxSRS = parentForm.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
+      if (val > maxSRS) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_big,
+          maximum: maxSRS,
+          type: "number",
+          inclusive: true,
+          message: `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
+            parentForm.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
+          }`,
+        });
+      }
+    }),
 });
 
 export type TaxCalculatorInputs = z.infer<typeof taxCalculatorSchema>; 

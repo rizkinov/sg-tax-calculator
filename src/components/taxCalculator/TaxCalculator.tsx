@@ -97,6 +97,33 @@ export function TaxCalculator() {
             )}
           />
 
+          {form.watch('taxpayerType') !== 'CORPORATION' && (
+            <FormField
+              control={form.control}
+              name="citizenshipStatus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Citizenship Status</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select citizenship status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="CITIZEN_PR">Singapore Citizen / PR</SelectItem>
+                      <SelectItem value="FOREIGNER">Foreigner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="income"
@@ -238,6 +265,7 @@ export function TaxCalculator() {
               income={form.getValues('income')}
               currentRelief={result.totalRelief}
               taxableIncome={result.taxableIncome}
+              citizenshipStatus={form.getValues('citizenshipStatus')}
             />
           )}
 
