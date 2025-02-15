@@ -29,18 +29,20 @@ export function TaxSavingSuggestions({
   let remainingCPFCapacity = 0;
   
   if (citizenshipStatus === 'FOREIGNER') {
+    // For foreigners, only SRS is available
     remainingSRSCapacity = Math.max(0, MAX_SRS - currentRelief);
     remainingCPFCapacity = 0;
   } else {
-    // For Citizens/PR
-    const usedSRS = Math.min(currentRelief, MAX_SRS);
-    remainingSRSCapacity = Math.max(0, MAX_SRS - usedSRS);
+    // For Citizens/PR, prioritize CPF first
+    const usedCPF = Math.min(currentRelief, MAX_CPF_RELIEF);
+    remainingCPFCapacity = Math.max(0, MAX_CPF_RELIEF - usedCPF);
     
-    const remainingForCPF = Math.max(0, currentRelief - usedSRS);
-    remainingCPFCapacity = Math.max(0, MAX_CPF_RELIEF - remainingForCPF);
+    // Then calculate remaining SRS capacity
+    const remainingForSRS = Math.max(0, currentRelief - usedCPF);
+    remainingSRSCapacity = Math.max(0, MAX_SRS - remainingForSRS);
   }
   
-  const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
+  const remainingReliefCapacity = remainingCPFCapacity + remainingSRSCapacity;
 
   // 3. Calculate tax savings
   const grossTax = calculateTax(income, 'EMPLOYEE');
@@ -126,15 +128,15 @@ export function TaxSavingSuggestions({
               {citizenshipStatus === 'CITIZEN_PR' ? (
                 <>
                   <div className="grid grid-cols-2 gap-2">
-                    <div>SRS Contributions:</div>
-                    <div className="text-right">
-                      {formatCurrency(remainingSRSCapacity)} remaining
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
                     <div>CPF Cash Top-up:</div>
                     <div className="text-right">
                       {formatCurrency(remainingCPFCapacity)} remaining
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>SRS Contributions:</div>
+                    <div className="text-right">
+                      {formatCurrency(remainingSRSCapacity)} remaining
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
