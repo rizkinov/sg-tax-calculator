@@ -47,7 +47,10 @@ export function TaxCalculator() {
 
   return (
     <div className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Singapore Tax Calculator</h1>
+      <h1 className="text-2xl font-bold mb-2">Singapore Tax Calculator</h1>
+      <p className="text-sm text-muted-foreground mb-6">
+        This calculator provides an unofficial estimate only. We do not store your data. Your inputs are processed locally on your device.
+      </p>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -130,6 +133,26 @@ export function TaxCalculator() {
             income={form.getValues('income')} 
             tax={result.totalTax} 
           />
+
+          <div className="mt-8 text-sm text-muted-foreground space-y-2 border-t pt-4">
+            <p className="font-medium">Disclaimer:</p>
+            <p>
+              Tax calculations are based on IRAS guidelines projected for Year of Assessment 2024 
+              (income earned in 2023). Rates and thresholds may change. Please verify with{' '}
+              <a 
+                href="https://www.iras.gov.sg" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                IRAS
+              </a>
+              {' '}for the most current information.
+            </p>
+            <p className="text-xs">
+              Last updated: February 2024
+            </p>
+          </div>
         </div>
       )}
     </div>
