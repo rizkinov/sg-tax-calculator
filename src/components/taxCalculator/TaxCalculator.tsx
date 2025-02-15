@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/tooltip";
 import { InfoIcon } from 'lucide-react';
 import { TaxSavingSuggestions } from './TaxSavingSuggestions';
+import { exportToExcel } from '@/lib/utils/excelExport';
+import { Download } from 'lucide-react';
 
 export function TaxCalculator() {
   const [result, setResult] = useState<{
@@ -241,8 +243,27 @@ export function TaxCalculator() {
 
       {result && (
         <div className="mt-8 space-y-8">
-          <div className="space-y-4">
+          <div className="flex justify-between items-start">
             <h2 className="text-xl font-semibold">Tax Calculation Results</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportToExcel({
+                income: form.getValues('income'),
+                totalRelief: result.totalRelief,
+                taxableIncome: result.taxableIncome,
+                totalTax: result.totalTax,
+                breakdown: result.breakdown,
+                cpfTopUp: form.getValues('cpfTopUp'),
+                srsContribution: form.getValues('srsContribution'),
+              })}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export to Excel
+            </Button>
+          </div>
+          
+          <div className="space-y-4">
             <div className="p-4 border rounded space-y-2">
               <p>Gross Income: {formatCurrency(form.getValues('income'))}</p>
               <p>Total Relief: {formatCurrency(result.totalRelief)}</p>
