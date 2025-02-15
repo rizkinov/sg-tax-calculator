@@ -241,18 +241,6 @@ export function TaxCalculator() {
             />
           )}
 
-          <div className="text-xs text-muted-foreground">
-            Debug info:
-            <pre>
-              {JSON.stringify({
-                income: form.getValues('income'),
-                taxpayerType: form.getValues('taxpayerType'),
-                currentRelief: result.totalRelief,
-                taxableIncome: result.taxableIncome
-              }, null, 2)}
-            </pre>
-          </div>
-
           <div className="mt-8 text-sm text-muted-foreground space-y-2 border-t pt-4">
             <p className="font-medium">Disclaimer:</p>
             <p>
@@ -269,7 +257,7 @@ export function TaxCalculator() {
               {' '}for the most current information.
             </p>
             <p className="text-xs">
-              Last updated: February 2025
+              Last updated: February 2024
             </p>
           </div>
         </div>
