@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const taxCalculatorSchema = z.object({
+const baseSchema = z.object({
   income: z.number({
     required_error: 'Please enter your annual income',
     invalid_type_error: 'Income must be a number',
@@ -22,17 +22,20 @@ export const taxCalculatorSchema = z.object({
     .min(0, 'SRS contribution must be a positive number')
     .optional()
     .default(0),
-}).refine((data) => {
+});
+
+export const taxCalculatorSchema = baseSchema.superRefine((data, ctx) => {
   const maxSRS = data.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
-  return data.srsContribution <= maxSRS;
-}, {
-  message: (data) => {
-    const maxSRS = data.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
-    return `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
-      data.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
-    }`;
-  },
-  path: ['srsContribution'], // This will show the error on the SRS field
+  
+  if (data.srsContribution > maxSRS) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
+        data.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
+      }`,
+      path: ['srsContribution'],
+    });
+  }
 });
 
 export type TaxCalculatorInputs = z.infer<typeof taxCalculatorSchema>; 
