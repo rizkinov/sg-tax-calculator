@@ -29,19 +29,9 @@ export function TaxSavingSuggestions({
     ? currentRelief >= MAX_SRS 
     : currentRelief >= TOTAL_MAX_RELIEF;
 
-  console.log('Simple debug:', {
-    currentRelief,
-    MAX_SRS,
-    isMaximized,
-    citizenshipStatus,
-    renderingCondition: isMaximized && taxableIncome > 20000
-  });
+  if (taxableIncome <= 20000) return null;
 
-  // Only basic checks
-  if (taxableIncome <= 20000) {
-    console.log('Returning null due to low taxable income');
-    return null;
-  }
+  const remainingRelief = MAX_SRS - currentRelief;
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -169,7 +159,102 @@ export function TaxSavingSuggestions({
               </div>
             </div>
           </motion.div>
-        ) : null}
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-lg">Tax Relief Progress</h3>
+            </div>
+
+            <div className="bg-primary/5 rounded-lg p-4 space-y-4">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Current Utilization</h4>
+                {citizenshipStatus === 'CITIZEN_PR' ? (
+                  <>
+                    <div className="space-y-2">
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>SRS Contributions</span>
+                          <span className="font-medium">
+                            ${formatCurrency(Math.min(currentRelief, MAX_SRS))} / ${formatCurrency(MAX_SRS)}
+                          </span>
+                        </div>
+                        <motion.div 
+                          className="h-2 bg-muted rounded-full overflow-hidden"
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "100%" }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <motion.div 
+                            className="h-full bg-primary rounded-full"
+                            initial={{ width: "0%" }}
+                            animate={{ width: `${(Math.min(currentRelief, MAX_SRS) / MAX_SRS) * 100}%` }}
+                            transition={{ duration: 0.8, delay: 0.5 }}
+                          />
+                        </motion.div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>CPF Cash Top-up</span>
+                          <span className="font-medium">
+                            ${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} / ${formatCurrency(MAX_CPF_RELIEF)}
+                          </span>
+                        </div>
+                        <motion.div 
+                          className="h-2 bg-muted rounded-full overflow-hidden"
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "100%" }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <motion.div 
+                            className="h-full bg-primary rounded-full"
+                            initial={{ width: "0%" }}
+                            animate={{ width: `${(Math.max(0, currentRelief - MAX_SRS) / MAX_CPF_RELIEF) * 100}%` }}
+                            transition={{ duration: 0.8, delay: 0.7 }}
+                          />
+                        </motion.div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>SRS Contributions</span>
+                      <span className="font-medium">
+                        ${formatCurrency(currentRelief)} / ${formatCurrency(MAX_SRS)}
+                      </span>
+                    </div>
+                    <motion.div 
+                      className="h-2 bg-muted rounded-full overflow-hidden"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "100%" }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <motion.div 
+                        className="h-full bg-primary rounded-full"
+                        initial={{ width: "0%" }}
+                        animate={{ width: `${(currentRelief / MAX_SRS) * 100}%` }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                      />
+                    </motion.div>
+                  </div>
+                )}
+
+                <div className="pt-3 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    You can still contribute up to ${formatCurrency(remainingRelief)} to your 
+                    {citizenshipStatus === 'FOREIGNER' ? ' SRS account' : ' tax relief'} 
+                    to maximize your tax savings.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </Card>
   );

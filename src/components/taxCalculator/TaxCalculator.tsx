@@ -141,14 +141,11 @@ export function TaxCalculator() {
                 <FormLabel>Annual Income (SGD)</FormLabel>
                 <FormControl>
                   <Input
+                    id="income"
                     type="number"
                     placeholder="Enter your annual income"
                     {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === '' ? undefined : Number(value));
-                    }}
-                    value={field.value || ''}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
