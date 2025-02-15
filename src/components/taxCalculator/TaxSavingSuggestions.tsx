@@ -15,34 +15,69 @@ interface TaxSavingSuggestionsProps {
 
 export function TaxSavingSuggestions({ 
   income, 
-  currentRelief, 
+  currentRelief,
   taxableIncome,
-  citizenshipStatus 
-}: TaxSavingSuggestionsProps) {
+  citizenshipStatus,
+  cpfTopUp = 0,    // Add these parameters to track individual contributions
+  srsContribution = 0
+}: TaxSavingSuggestionsProps & {
+  cpfTopUp?: number;
+  srsContribution?: number;
+}) {
   // 1. Define maximum relief limits
   const MAX_CPF_RELIEF = citizenshipStatus === 'CITIZEN_PR' ? 16000 : 0;
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
-  // 2. Calculate remaining relief capacity
+  // 2. Calculate remaining relief capacity with validation
   let remainingSRSCapacity = 0;
   let remainingCPFCapacity = 0;
   
   if (citizenshipStatus === 'FOREIGNER') {
     // For foreigners, only SRS is available
-    remainingSRSCapacity = Math.max(0, MAX_SRS - currentRelief);
+    if (srsContribution > MAX_SRS) {
+      console.warn('SRS contribution exceeds maximum limit');
+      remainingSRSCapacity = 0;
+    } else {
+      remainingSRSCapacity = Math.max(0, MAX_SRS - srsContribution);
+    }
     remainingCPFCapacity = 0;
   } else {
-    // For Citizens/PR, prioritize CPF first
-    const usedCPF = Math.min(currentRelief, MAX_CPF_RELIEF);
-    remainingCPFCapacity = Math.max(0, MAX_CPF_RELIEF - usedCPF);
-    
-    // Then calculate remaining SRS capacity
-    const remainingForSRS = Math.max(0, currentRelief - usedCPF);
-    remainingSRSCapacity = Math.max(0, MAX_SRS - remainingForSRS);
+    // For Citizens/PR, handle CPF and SRS separately
+    // Handle CPF
+    if (cpfTopUp > MAX_CPF_RELIEF) {
+      console.warn('CPF top-up exceeds maximum limit');
+      remainingCPFCapacity = 0;
+    } else {
+      remainingCPFCapacity = Math.max(0, MAX_CPF_RELIEF - cpfTopUp);
+    }
+
+    // Handle SRS
+    if (srsContribution > MAX_SRS) {
+      console.warn('SRS contribution exceeds maximum limit');
+      remainingSRSCapacity = 0;
+    } else {
+      remainingSRSCapacity = Math.max(0, MAX_SRS - srsContribution);
+    }
   }
   
   const remainingReliefCapacity = remainingCPFCapacity + remainingSRSCapacity;
+  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
+
+  // Add validation warnings
+  const warnings = [];
+  if (citizenshipStatus === 'FOREIGNER' && cpfTopUp > 0) {
+    warnings.push('Foreigners are not eligible for CPF Cash Top-up');
+  }
+  if (cpfTopUp > MAX_CPF_RELIEF) {
+    warnings.push(`CPF Cash Top-up exceeds maximum limit of ${formatCurrency(MAX_CPF_RELIEF)}`);
+  }
+  if (srsContribution > MAX_SRS) {
+    warnings.push(`SRS contribution exceeds maximum limit of ${formatCurrency(MAX_SRS)}`);
+  }
+  if (currentRelief > TOTAL_MAX_RELIEF) {
+    warnings.push(`Total relief exceeds maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}`);
+  }
 
   // 3. Calculate tax savings
   const grossTax = calculateTax(income, 'EMPLOYEE');
@@ -79,6 +114,17 @@ export function TaxSavingSuggestions({
   return (
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
+        {/* Show warnings if any */}
+        {warnings.length > 0 && (
+          <div className="space-y-1 mb-4">
+            {warnings.map((warning, index) => (
+              <p key={index} className="text-sm text-destructive">
+                Warning: {warning}
+              </p>
+            ))}
+          </div>
+        )}
+
         {canReachLowerBracket ? (
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>

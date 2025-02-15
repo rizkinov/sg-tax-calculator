@@ -275,6 +275,8 @@ export function TaxCalculator() {
               currentRelief={result.totalRelief}
               taxableIncome={result.taxableIncome}
               citizenshipStatus={form.getValues('citizenshipStatus')}
+              cpfTopUp={form.getValues('cpfTopUp')}
+              srsContribution={form.getValues('srsContribution')}
             />
           )}
 
