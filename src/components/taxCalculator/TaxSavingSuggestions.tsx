@@ -1,7 +1,7 @@
 'use client';
 
 import { formatCurrency } from "@/lib/utils";
-import { PROGRESSIVE_TAX_BRACKETS, TaxBracket } from "@/lib/utils/taxCalculator";
+import { PROGRESSIVE_TAX_BRACKETS } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
 
 interface TaxSavingSuggestionsProps {
@@ -11,8 +11,6 @@ interface TaxSavingSuggestionsProps {
 }
 
 export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: TaxSavingSuggestionsProps) {
-  console.log('TaxSavingSuggestions props:', { income, currentRelief, taxableIncome });
-
   // Don't show suggestions if income is too low to be taxed
   if (taxableIncome <= 20000) {
     return null;
@@ -20,37 +18,32 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
-    bracket => taxableIncome > bracket.min && (!bracket.max || taxableIncome <= bracket.max)
+    bracket => taxableIncome >= bracket.min && (bracket.max === null || taxableIncome <= bracket.max)
   );
-  console.log('Current bracket:', currentBracket);
 
-  // Find previous bracket
-  const previousBracket = PROGRESSIVE_TAX_BRACKETS.find(
-    bracket => currentBracket && bracket.max === currentBracket.min
-  );
-  console.log('Previous bracket:', previousBracket);
+  if (!currentBracket) return null;
 
-  // Early return if no valid brackets found or if already in lowest bracket
-  if (!currentBracket || !previousBracket || !previousBracket.max || currentBracket.rate <= previousBracket.rate) {
-    return null;
-  }
+  // Find the next lower bracket
+  const currentBracketIndex = PROGRESSIVE_TAX_BRACKETS.indexOf(currentBracket);
+  if (currentBracketIndex <= 0) return null;
 
-  // Calculate how much more relief needed to drop to lower bracket
+  const previousBracket = PROGRESSIVE_TAX_BRACKETS[currentBracketIndex - 1];
+  if (!previousBracket.max) return null;
+
+  // Calculate remaining relief capacity
+  const remainingReliefCapacity = 16000 - currentRelief;
+  if (remainingReliefCapacity <= 0) return null;
+
+  // Calculate how much relief needed to drop to lower bracket
   const reliefNeeded = taxableIncome - previousBracket.max;
-  const maxAdditionalRelief = Math.min(
-    reliefNeeded,
-    16000 - (currentRelief || 0) // Assuming max total relief of $16,000
-  );
+  if (reliefNeeded <= 0) return null;
 
-  if (maxAdditionalRelief <= 0) {
-    return null;
-  }
+  const suggestedRelief = Math.min(reliefNeeded, remainingReliefCapacity);
 
-  // Calculate potential tax savings
-  const currentTax = taxableIncome * currentBracket.rate;
-  const potentialTaxableIncome = taxableIncome - maxAdditionalRelief;
-  const potentialTax = potentialTaxableIncome * previousBracket.rate;
-  const savings = currentTax - potentialTax;
+  // Calculate potential savings
+  const currentTaxRate = currentBracket.rate;
+  const lowerTaxRate = previousBracket.rate;
+  const potentialSavings = (suggestedRelief * currentTaxRate) - (suggestedRelief * lowerTaxRate);
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -60,14 +53,15 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
           You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
         </p>
         <p>
-          By contributing an additional {formatCurrency(maxAdditionalRelief)} to your eligible tax relief,
+          By contributing an additional {formatCurrency(suggestedRelief)} to your eligible tax relief,
           you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
         </p>
         <p className="font-medium text-primary">
-          Potential tax savings: {formatCurrency(savings)}
+          Potential tax savings: {formatCurrency(potentialSavings)}
         </p>
         <p className="text-sm text-muted-foreground mt-2">
-          Consider topping up your CPF or SRS to maximize your tax savings.
+          Consider topping up your CPF (up to $8,000 for own account, $8,000 for family members) 
+          or SRS (up to $15,300 for Citizens & PR, $35,700 for Foreigners) to maximize your tax savings.
           Consult a tax professional for personalized advice.
         </p>
       </div>
