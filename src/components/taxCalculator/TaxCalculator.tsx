@@ -128,10 +128,10 @@ export function TaxCalculator() {
                   <FormLabel>CPF Cash Top-up (Optional)</FormLabel>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger type="button" onClick={(e) => e.preventDefault()}>
                         <InfoIcon className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
+                      <TooltipContent>
                         <p>Maximum tax relief:</p>
                         <ul className="list-disc ml-4 mt-1">
                           <li>Own account: Up to $8,000</li>
@@ -167,10 +167,10 @@ export function TaxCalculator() {
                   <FormLabel>SRS Contribution (Optional)</FormLabel>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger type="button" onClick={(e) => e.preventDefault()}>
                         <InfoIcon className="h-4 w-4 text-muted-foreground" />
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
+                      <TooltipContent>
                         <p>Maximum contribution:</p>
                         <ul className="list-disc ml-4 mt-1">
                           <li>Singapore Citizens & PR: $15,300</li>
