@@ -12,12 +12,12 @@ export const taxCalculatorSchema = z.object({
   }),
   cpfTopUp: z.number()
     .min(0, 'CPF top-up must be a positive number')
-    .max(8000, 'Maximum CPF top-up relief is $8,000')
+    .max(16000, 'Maximum CPF top-up relief is $16,000 ($8,000 for own account and $8,000 for family members)')
     .optional()
     .default(0),
   srsContribution: z.number()
     .min(0, 'SRS contribution must be a positive number')
-    .max(15300, 'Maximum SRS contribution for citizens is $15,300')
+    .max(35700, 'Maximum SRS contribution is $15,300 for Citizens & PR, and $35,700 for Foreigners')
     .optional()
     .default(0),
 });

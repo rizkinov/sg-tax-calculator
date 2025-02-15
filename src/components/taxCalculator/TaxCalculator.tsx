@@ -135,7 +135,8 @@ export function TaxCalculator() {
                         <p>Maximum tax relief:</p>
                         <ul className="list-disc ml-4 mt-1">
                           <li>Own account: Up to $8,000</li>
-                          <li>Family members: Additional $8,000</li>
+                          <li>Family members: Up to $8,000</li>
+                          <li>Total maximum: $16,000</li>
                         </ul>
                       </TooltipContent>
                     </Tooltip>
