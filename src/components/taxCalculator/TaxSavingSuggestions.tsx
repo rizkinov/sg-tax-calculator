@@ -47,16 +47,21 @@ export function TaxSavingSuggestions({
 
   // Calculate how much relief needed to drop to lower bracket
   const reliefNeeded = taxableIncome - previousBracket.max;
+
+  // Only show if we can actually move to a lower bracket
   if (reliefNeeded <= 0) return null;
 
-  // Calculate suggested relief and potential savings
-  const suggestedRelief = Math.min(reliefNeeded, Math.max(0, remainingReliefCapacity));
-  const currentTaxRate = currentBracket.rate;
-  const lowerTaxRate = previousBracket.rate;
-  const potentialSavings = reliefNeeded * (currentTaxRate - lowerTaxRate);
+  // Calculate potential savings based on available relief
+  const possibleRelief = Math.min(reliefNeeded, remainingReliefCapacity);
+  if (possibleRelief <= 0) return null;
 
-  // Only show if there are meaningful savings
-  if (potentialSavings <= 0) return null;
+  // Calculate new taxable income after possible relief
+  const newTaxableIncome = taxableIncome - possibleRelief;
+  
+  // Only show if we can actually move to a lower bracket
+  if (newTaxableIncome > previousBracket.max) return null;
+
+  const potentialSavings = possibleRelief * (currentBracket.rate - previousBracket.rate);
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -70,19 +75,22 @@ export function TaxSavingSuggestions({
             Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}.
             Consider adjusting your relief contributions to stay within the limits.
           </p>
-        ) : suggestedRelief > 0 ? (
+        ) : possibleRelief > 0 ? (
           <p>
-            By contributing an additional {formatCurrency(suggestedRelief)} to your eligible tax relief,
+            By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
             you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
           </p>
         ) : (
           <p>
-            You need to reduce your taxable income by {formatCurrency(reliefNeeded)} to move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+            You have reached the maximum available relief for your tax bracket.
           </p>
         )}
-        <p className="font-medium text-primary">
-          Potential tax savings: {formatCurrency(potentialSavings)}
-        </p>
+        {potentialSavings > 0 && (
+          <p className="font-medium text-primary">
+            Potential tax savings: {formatCurrency(potentialSavings)}
+          </p>
+        )}
+
         <div className="text-sm text-muted-foreground mt-4 space-y-4">
           <div>
             <p className="font-medium mb-2">
