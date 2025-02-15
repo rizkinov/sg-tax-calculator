@@ -127,6 +127,67 @@ export function TaxSavingSuggestions({
   // Check if we can reach lower bracket with remaining relief
   const canReachLowerBracket = potentialTaxableIncome <= previousBracket.max;
 
+  // Add this helper function at the top of the component
+  function isReliefMaximized(
+    citizenshipStatus: 'CITIZEN_PR' | 'FOREIGNER',
+    cpfTopUp: number,
+    srsContribution: number
+  ): boolean {
+    if (citizenshipStatus === 'CITIZEN_PR') {
+      return cpfTopUp >= MAX_CPF_RELIEF && srsContribution >= MAX_SRS;
+    }
+    return srsContribution >= MAX_SRS;
+  }
+
+  if (isReliefMaximized(citizenshipStatus, cpfTopUp, srsContribution)) {
+    return (
+      <Card className="p-4 bg-muted/50">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <PartyPopper className="h-5 w-5 text-green-600" />
+            <h3 className="font-semibold text-lg">Congratulations!</h3>
+          </div>
+          
+          {citizenshipStatus === 'CITIZEN_PR' ? (
+            <p>
+              You have maximized your tax relief by contributing the full amount to both CPF 
+              (<span className="font-semibold">{formatCurrency(MAX_CPF_RELIEF).replace('SGD', '')}</span>) and SRS 
+              (<span className="font-semibold">{formatCurrency(MAX_SRS).replace('SGD', '')}</span>). 
+              This will help you save <span className="font-semibold">{formatCurrency(currentTaxSavings).replace('SGD', '')}</span> in taxes.
+            </p>
+          ) : (
+            <p>
+              You have maximized your tax relief by contributing the full SRS amount 
+              of <span className="font-semibold">{formatCurrency(MAX_SRS).replace('SGD', '')}</span>. 
+              This will help you save <span className="font-semibold">{formatCurrency(currentTaxSavings).replace('SGD', '')}</span> in taxes.
+            </p>
+          )}
+
+          <div className="mt-4">
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="current-tax">
+                <AccordionTrigger className="bg-background/50 px-4 rounded-t">
+                  Tax Breakdown
+                </AccordionTrigger>
+                <AccordionContent className="bg-background/50 px-4 pb-4 rounded-b">
+                  <div className="pt-2">
+                    <TaxBreakdown 
+                      taxableIncome={taxableIncome} 
+                      totalTax={currentTax}
+                      showDetails
+                      className="bg-background/50"
+                      removeCurrencyPrefix
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
