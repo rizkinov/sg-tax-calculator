@@ -106,28 +106,7 @@ export function TaxSavingSuggestions({
   const additionalTaxSavings = currentTax - potentialTax;
   const totalPotentialSavings = currentTaxSavings + additionalTaxSavings;
 
-  // Early returns
-  if (taxableIncome <= 20000) return null;
-  if (remainingReliefCapacity <= 0) return null;
-  if (additionalTaxSavings <= 0) return null;
-
-  // Find current tax bracket
-  const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
-    bracket => taxableIncome >= bracket.min && (bracket.max === null || taxableIncome <= bracket.max)
-  );
-  if (!currentBracket) return null;
-
-  // Find the next lower bracket
-  const currentBracketIndex = PROGRESSIVE_TAX_BRACKETS.indexOf(currentBracket);
-  if (currentBracketIndex <= 0) return null;
-
-  const previousBracket = PROGRESSIVE_TAX_BRACKETS[currentBracketIndex - 1];
-  if (!previousBracket.max) return null;
-
-  // Check if we can reach lower bracket with remaining relief
-  const canReachLowerBracket = potentialTaxableIncome <= previousBracket.max;
-
-  // Add this helper function at the top of the component
+  // Move the isReliefMaximized helper function to the top of the component
   function isReliefMaximized(
     citizenshipStatus: 'CITIZEN_PR' | 'FOREIGNER',
     cpfTopUp: number,
@@ -139,6 +118,10 @@ export function TaxSavingSuggestions({
     return srsContribution >= MAX_SRS;
   }
 
+  // Modify the early returns section
+  if (taxableIncome <= 20000) return null;
+
+  // Check for maximized relief before other early returns
   if (isReliefMaximized(citizenshipStatus, cpfTopUp, srsContribution)) {
     return (
       <Card className="p-4 bg-muted/50">
@@ -187,6 +170,26 @@ export function TaxSavingSuggestions({
       </Card>
     );
   }
+
+  // Then continue with other early returns
+  if (remainingReliefCapacity <= 0) return null;
+  if (additionalTaxSavings <= 0) return null;
+
+  // Find current tax bracket
+  const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
+    bracket => taxableIncome >= bracket.min && (bracket.max === null || taxableIncome <= bracket.max)
+  );
+  if (!currentBracket) return null;
+
+  // Find the next lower bracket
+  const currentBracketIndex = PROGRESSIVE_TAX_BRACKETS.indexOf(currentBracket);
+  if (currentBracketIndex <= 0) return null;
+
+  const previousBracket = PROGRESSIVE_TAX_BRACKETS[currentBracketIndex - 1];
+  if (!previousBracket.max) return null;
+
+  // Check if we can reach lower bracket with remaining relief
+  const canReachLowerBracket = potentialTaxableIncome <= previousBracket.max;
 
   return (
     <Card className="p-4 bg-muted/50">
