@@ -32,20 +32,17 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
 
   // Calculate remaining relief capacity
   const remainingReliefCapacity = 16000 - currentRelief;
-  if (remainingReliefCapacity <= 0) return null;
+  const isOverLimit = currentRelief > 16000;
 
   // Calculate how much relief needed to drop to lower bracket
   const reliefNeeded = taxableIncome - previousBracket.max;
   if (reliefNeeded <= 0) return null;
 
-  // Only suggest if we can actually move to a lower bracket
-  const suggestedRelief = Math.min(reliefNeeded, remainingReliefCapacity);
-  if (suggestedRelief <= 0) return null;
-
-  // Calculate potential savings
+  // Calculate suggested relief and potential savings
+  const suggestedRelief = Math.min(reliefNeeded, Math.max(0, remainingReliefCapacity));
   const currentTaxRate = currentBracket.rate;
   const lowerTaxRate = previousBracket.rate;
-  const potentialSavings = (suggestedRelief * (currentTaxRate - lowerTaxRate));
+  const potentialSavings = reliefNeeded * (currentTaxRate - lowerTaxRate);
 
   // Only show if there are meaningful savings
   if (potentialSavings <= 0) return null;
@@ -57,10 +54,19 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
         <p>
           You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
         </p>
-        {suggestedRelief > 0 && (
+        {isOverLimit ? (
+          <p className="text-destructive">
+            Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum limit of ${formatCurrency(16000)}.
+            Consider adjusting your relief contributions to stay within the limit.
+          </p>
+        ) : suggestedRelief > 0 ? (
           <p>
             By contributing an additional {formatCurrency(suggestedRelief)} to your eligible tax relief,
             you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+          </p>
+        ) : (
+          <p>
+            You need to reduce your taxable income by {formatCurrency(reliefNeeded)} to move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
           </p>
         )}
         <p className="font-medium text-primary">
