@@ -24,11 +24,13 @@ export function TaxSavingSuggestions({
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
   // Calculate remaining relief capacity by type
-  const remainingSRSCapacity = MAX_SRS - (
-    citizenshipStatus === 'FOREIGNER' ? currentRelief : Math.min(currentRelief, MAX_SRS)
-  );
-  const remainingCPFCapacity = citizenshipStatus === 'CITIZEN_PR' ? 
-    Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - MAX_SRS)) : 0;
+  const remainingSRSCapacity = citizenshipStatus === 'FOREIGNER' 
+    ? MAX_SRS - currentRelief  // For foreigners, all relief goes to SRS
+    : Math.max(0, MAX_SRS - Math.min(currentRelief, MAX_SRS)); // For citizens/PR, check SRS limit separately
+
+  const remainingCPFCapacity = citizenshipStatus === 'CITIZEN_PR' 
+    ? Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - remainingSRSCapacity)) 
+    : 0;
   
   const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
   const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
