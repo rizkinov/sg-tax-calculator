@@ -23,8 +23,19 @@ export function TaxSavingSuggestions({
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
-  // Don't show suggestions if income is too low to be taxed
+  // Calculate remaining relief capacity by type
+  const remainingSRSCapacity = MAX_SRS - (
+    citizenshipStatus === 'FOREIGNER' ? currentRelief : Math.min(currentRelief, MAX_SRS)
+  );
+  const remainingCPFCapacity = citizenshipStatus === 'CITIZEN_PR' ? 
+    Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - MAX_SRS)) : 0;
+  
+  const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
+  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
+
+  // Early returns
   if (taxableIncome <= 20000) return null;
+  if (remainingReliefCapacity <= 0) return null;
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
@@ -39,16 +50,20 @@ export function TaxSavingSuggestions({
   const previousBracket = PROGRESSIVE_TAX_BRACKETS[currentBracketIndex - 1];
   if (!previousBracket.max) return null;
 
-  // Calculate remaining relief capacity
-  const remainingReliefCapacity = TOTAL_MAX_RELIEF - currentRelief;
-  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
-  if (remainingReliefCapacity <= 0) return null;
-
   // Calculate current tax
   const currentTax = calculateTax(taxableIncome, 'EMPLOYEE');
 
   // Calculate tax with maximum possible additional relief
-  const possibleRelief = Math.min(remainingReliefCapacity, income - taxableIncome);
+  const possibleRelief = Math.min(
+    remainingReliefCapacity,
+    citizenshipStatus === 'FOREIGNER' ? 
+      Math.min(remainingSRSCapacity, income - taxableIncome) :
+      Math.min(
+        // For Citizens/PR, consider both SRS and CPF limits
+        remainingSRSCapacity + remainingCPFCapacity,
+        income - taxableIncome
+      )
+  );
   const newTaxableIncome = taxableIncome - possibleRelief;
   const newTax = calculateTax(newTaxableIncome, 'EMPLOYEE');
   
@@ -102,6 +117,41 @@ export function TaxSavingSuggestions({
 
         <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
           <div>
+            <h4 className="font-medium mb-2">Available Relief Capacity</h4>
+            <div className="space-y-2 text-sm">
+              {citizenshipStatus === 'CITIZEN_PR' ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>SRS Contributions:</div>
+                    <div className="text-right">
+                      ${formatCurrency(remainingSRSCapacity)} remaining
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>CPF Cash Top-up:</div>
+                    <div className="text-right">
+                      ${formatCurrency(remainingCPFCapacity)} remaining
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
+                    <div>Total Available:</div>
+                    <div className="text-right">
+                      ${formatCurrency(remainingReliefCapacity)}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <div>SRS Contributions:</div>
+                  <div className="text-right">
+                    ${formatCurrency(remainingSRSCapacity)} remaining
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="border-t pt-4">
             <h4 className="font-medium mb-3">Current Tax Breakdown</h4>
             <TaxBreakdown 
               taxableIncome={taxableIncome} 
