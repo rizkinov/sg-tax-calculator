@@ -73,10 +73,12 @@ Calculation:
      * CPF Cash Top-up: $16,000 ($8,000 own + $8,000 family)
      * SRS: $15,300
    - Current Relief Used: $4,000
-   - Remaining Relief Capacity: $27,300 ($31,300 max - $4,000 current)
-   - Suggested Relief: $1,000 (enough to move to lower bracket)
-   - Potential Tax Savings: $30 
-     ($1,000 × (18% - 15%) = $1,000 × 3% = $30)
+   - Remaining Relief Capacity: $27,300
+   - Suggested Relief: $1,000
+   - Tax Savings Calculation:
+     * Current Tax: $16,750
+     * Tax After Relief: $16,720 (drops to 15% bracket)
+     * Total Tax Savings: $30
 
 #### Example 2: Singapore Citizen/PR - Maximum Relief but Same Bracket
 
@@ -97,8 +99,12 @@ Calculation:
    - Maximum Combined Relief: $31,300
    - Current Relief Used: $8,000
    - Additional Possible Relief: $23,300
-   - Potential Tax Savings: $699
-     ($23,300 × 3% = $699 savings within same bracket)
+   - Tax Savings Calculation:
+     * Current Tax: $19,709.82
+     * New Taxable Income: $168,700 ($200,000 - $31,300)
+     * Tax After Maximum Relief: $15,515.82
+     * Total Tax Savings: $4,194
+     * Effective Savings Rate: 18% (full marginal rate applies)
 
 #### Example 3: Foreigner - SRS Only
 
@@ -118,8 +124,12 @@ Calculation:
    - Maximum Relief: $35,700 (SRS only, not eligible for CPF)
    - Current Relief Used: $10,000
    - Additional Possible Relief: $25,700
-   - Potential Tax Savings: $771
-     ($25,700 × 3% = $771 savings within same bracket)
+   - Tax Savings Calculation:
+     * Current Tax: $19,349.82
+     * New Taxable Income: $164,300 ($200,000 - $35,700)
+     * Tax After Maximum Relief: $14,723.82
+     * Total Tax Savings: $4,626
+     * Effective Savings Rate: 18% (full marginal rate applies)
    - Note: Not eligible for CPF Cash Top-up
 
 #### Example 4: Singapore Citizen/PR - Lower Income Bracket
@@ -142,11 +152,14 @@ Calculation:
    - Maximum Combined Relief: $31,300
    - Current Relief Used: $5,000
    - Remaining Relief Capacity: $26,300
-   - Suggested Relief: $15,000 (can move to lower bracket)
-   - Potential Tax Savings: $675
-     ($15,000 × (11.5% - 7%) = $15,000 × 4.5% = $675)
+   - Tax Savings Calculation:
+     * Current Tax: $5,350
+     * New Taxable Income: $80,000 ($100,000 - $20,000)
+     * Tax After Relief: $3,350
+     * Total Tax Savings: $2,000
+     * Mixed Savings Rate: First $15,000 saves at 11.5%
 
-Note: The calculator suggests optimal relief contributions while ensuring you stay within the maximum relief limits based on your residency status. Other tax reliefs (e.g., Parent Relief, Course Fees Relief) are not included in these calculations but could provide additional tax savings.
+Note: The calculator computes tax savings by calculating the complete tax liability before and after relief, using Singapore's progressive tax rate structure. This provides more accurate savings figures compared to using just the marginal rate difference, especially when the additional relief doesn't change your tax bracket.
 
 ## Development
 
