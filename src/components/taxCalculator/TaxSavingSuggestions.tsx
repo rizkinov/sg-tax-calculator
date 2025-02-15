@@ -13,6 +13,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Badge } from "@/components/ui/badge";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -116,6 +117,9 @@ export function TaxSavingSuggestions({
             >
               <Trophy className="h-6 w-6 text-yellow-500" />
               <h3 className="font-semibold text-lg">Congratulations!</h3>
+              <Badge variant="success" className="ml-2">
+                Maximum Relief Achieved
+              </Badge>
               <motion.div
                 animate={{ rotate: [0, 15, -15, 0] }}
                 transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
@@ -140,24 +144,38 @@ export function TaxSavingSuggestions({
                             <span>SRS Contributions</span>
                             <span className="font-medium">${formatCurrency(Math.min(currentRelief, MAX_SRS))} / ${formatCurrency(MAX_SRS)}</span>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary rounded-full transition-all"
-                              style={{ width: `${(Math.min(currentRelief, MAX_SRS) / MAX_SRS) * 100}%` }}
+                          <motion.div 
+                            className="h-2 bg-muted rounded-full overflow-hidden"
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: "100%" }}
+                            transition={{ duration: 0.5 }}
+                          >
+                            <motion.div 
+                              className="h-full bg-primary rounded-full"
+                              initial={{ width: "0%" }}
+                              animate={{ width: `${(Math.min(currentRelief, MAX_SRS) / MAX_SRS) * 100}%` }}
+                              transition={{ duration: 0.8, delay: 0.5 }}
                             />
-                          </div>
+                          </motion.div>
                         </div>
                         <div>
                           <div className="flex justify-between text-sm mb-1">
                             <span>CPF Cash Top-up</span>
                             <span className="font-medium">${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} / ${formatCurrency(MAX_CPF_RELIEF)}</span>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary rounded-full transition-all"
-                              style={{ width: `${(Math.max(0, currentRelief - MAX_SRS) / MAX_CPF_RELIEF) * 100}%` }}
+                          <motion.div 
+                            className="h-2 bg-muted rounded-full overflow-hidden"
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: "100%" }}
+                            transition={{ duration: 0.5 }}
+                          >
+                            <motion.div 
+                              className="h-full bg-primary rounded-full"
+                              initial={{ width: "0%" }}
+                              animate={{ width: `${(Math.max(0, currentRelief - MAX_SRS) / MAX_CPF_RELIEF) * 100}%` }}
+                              transition={{ duration: 0.8, delay: 0.5 }}
                             />
-                          </div>
+                          </motion.div>
                         </div>
                       </div>
                     </>
@@ -167,12 +185,19 @@ export function TaxSavingSuggestions({
                         <span>SRS Contributions</span>
                         <span className="font-medium">${formatCurrency(currentRelief)} / ${formatCurrency(MAX_SRS)}</span>
                       </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${(currentRelief / MAX_SRS) * 100}%` }}
+                      <motion.div 
+                        className="h-2 bg-muted rounded-full overflow-hidden"
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "100%" }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <motion.div 
+                          className="h-full bg-primary rounded-full"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${(currentRelief / MAX_SRS) * 100}%` }}
+                          transition={{ duration: 0.8, delay: 0.5 }}
                         />
-                      </div>
+                      </motion.div>
                     </div>
                   )}
                 </div>
@@ -191,15 +216,24 @@ export function TaxSavingSuggestions({
                   </HoverCard>
                 </h4>
                 <div className="grid gap-2">
-                  <Button variant="outline" className="justify-start" asChild>
+                  <Button 
+                    variant="outline" 
+                    className="justify-start group transition-all hover:scale-102"
+                    asChild
+                  >
                     <a 
                       href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions/tax-reliefs/course-fees-relief"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 group-hover:text-primary"
                     >
                       Course Fees Relief
-                      <ExternalLink className="h-3 w-3" />
+                      <motion.span
+                        className="inline-block"
+                        whileHover={{ x: 2 }}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </motion.span>
                     </a>
                   </Button>
                   <Button variant="outline" className="justify-start" asChild>
