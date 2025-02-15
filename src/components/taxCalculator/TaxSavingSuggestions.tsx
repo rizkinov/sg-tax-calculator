@@ -74,6 +74,9 @@ export function TaxSavingSuggestions({
   const additionalTaxSavings = currentTax - potentialTax;
   const totalPotentialSavings = currentTaxSavings + additionalTaxSavings;
 
+  // Check if we can reach lower bracket with remaining relief
+  const canReachLowerBracket = potentialTaxableIncome <= previousBracket.max;
+
   if (additionalTaxSavings <= 0) return null;
 
   return (
