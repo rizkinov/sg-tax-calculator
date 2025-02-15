@@ -21,20 +21,18 @@ export const taxCalculatorSchema = z.object({
   srsContribution: z.number()
     .min(0, 'SRS contribution must be a positive number')
     .optional()
-    .default(0)
-    .superRefine((val, ctx) => {
-      const form = ctx.parent as { citizenshipStatus: 'CITIZEN_PR' | 'FOREIGNER' };
-      const maxSRS = form.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
-      
-      if (val > maxSRS) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
-            form.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
-          }`,
-        });
-      }
-    }),
+    .default(0),
+}).refine((data) => {
+  const maxSRS = data.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
+  return data.srsContribution <= maxSRS;
+}, {
+  message: (data) => {
+    const maxSRS = data.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
+    return `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
+      data.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
+    }`;
+  },
+  path: ['srsContribution'], // This will show the error on the SRS field
 });
 
 export type TaxCalculatorInputs = z.infer<typeof taxCalculatorSchema>; 
