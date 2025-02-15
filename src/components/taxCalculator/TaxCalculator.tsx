@@ -56,19 +56,28 @@ export function TaxCalculator() {
   const watchedValues = form.watch();
   
   useEffect(() => {
-    // Only calculate if we have an income value
-    if (watchedValues.income) {
-      const data = form.getValues();
-      const totalRelief = (data.cpfTopUp || 0) + (data.srsContribution || 0);
-      const taxableIncome = Math.max(0, data.income - totalRelief);
-      const totalTax = calculateTax(taxableIncome, data.taxpayerType as TaxPayerType);
-      const breakdown = calculateTaxBreakdown(taxableIncome, data.taxpayerType as TaxPayerType);
-      setResult({ 
-        totalTax, 
-        breakdown,
-        totalRelief,
-        taxableIncome,
-      });
+    try {
+      // Only calculate if we have an income value and the form is valid
+      if (watchedValues.income) {
+        const data = form.getValues();
+        // Ensure all required values are present and valid
+        if (data.taxpayerType && data.citizenshipStatus) {
+          const totalRelief = (data.cpfTopUp || 0) + (data.srsContribution || 0);
+          const taxableIncome = Math.max(0, data.income - totalRelief);
+          const totalTax = calculateTax(taxableIncome, data.taxpayerType as TaxPayerType);
+          const breakdown = calculateTaxBreakdown(taxableIncome, data.taxpayerType as TaxPayerType);
+          setResult({ 
+            totalTax, 
+            breakdown,
+            totalRelief,
+            taxableIncome,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error calculating tax:', error);
+      // Optionally reset result if calculation fails
+      setResult(null);
     }
   }, [watchedValues, form]);
 
