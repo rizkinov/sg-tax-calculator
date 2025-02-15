@@ -38,12 +38,17 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
   const reliefNeeded = taxableIncome - previousBracket.max;
   if (reliefNeeded <= 0) return null;
 
+  // Only suggest if we can actually move to a lower bracket
   const suggestedRelief = Math.min(reliefNeeded, remainingReliefCapacity);
+  if (suggestedRelief <= 0) return null;
 
   // Calculate potential savings
   const currentTaxRate = currentBracket.rate;
   const lowerTaxRate = previousBracket.rate;
-  const potentialSavings = (suggestedRelief * currentTaxRate) - (suggestedRelief * lowerTaxRate);
+  const potentialSavings = (suggestedRelief * (currentTaxRate - lowerTaxRate));
+
+  // Only show if there are meaningful savings
+  if (potentialSavings <= 0) return null;
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -52,10 +57,12 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
         <p>
           You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
         </p>
-        <p>
-          By contributing an additional {formatCurrency(suggestedRelief)} to your eligible tax relief,
-          you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
-        </p>
+        {suggestedRelief > 0 && (
+          <p>
+            By contributing an additional {formatCurrency(suggestedRelief)} to your eligible tax relief,
+            you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+          </p>
+        )}
         <p className="font-medium text-primary">
           Potential tax savings: {formatCurrency(potentialSavings)}
         </p>
