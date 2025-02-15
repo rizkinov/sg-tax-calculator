@@ -11,6 +11,12 @@ import { ExternalLinkIcon, PartyPopper, Download } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
 import { Button } from "@/components/ui/button";
 import { exportTaxOptimizationToExcel } from '@/lib/utils/excelExport';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -177,90 +183,79 @@ export function TaxSavingSuggestions({
           </div>
         </div>
 
-        <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
-          <div className="flex justify-between items-start">
-            <h4 className="font-medium">Available Relief Capacity</h4>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => exportTaxOptimizationToExcel({
-                currentBracket,
-                currentTaxSavings,
-                additionalTaxSavings,
-                totalPotentialSavings,
-                remainingCapacity: {
-                  cpf: remainingCPFCapacity,
-                  srs: remainingSRSCapacity,
-                  total: remainingReliefCapacity
-                },
-                currentTax: {
-                  taxableIncome,
-                  breakdown: breakdown,
-                  totalTax: currentTax
-                },
-                potentialTax: {
-                  taxableIncome: potentialTaxableIncome,
-                  breakdown: calculateTaxBreakdown(potentialTaxableIncome, 'EMPLOYEE'),
-                  totalTax: potentialTax
-                }
-              })}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export Details
-            </Button>
-          </div>
+        <div className="mt-4">
+          <Accordion type="multiple" className="w-full">
+            <AccordionItem value="relief-capacity">
+              <AccordionTrigger className="bg-background/50 px-4 rounded-t">
+                Available Relief Capacity
+              </AccordionTrigger>
+              <AccordionContent className="bg-background/50 px-4 pb-4 rounded-b">
+                <div className="space-y-2 text-sm pt-2">
+                  {citizenshipStatus === 'CITIZEN_PR' ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>CPF Cash Top-up:</div>
+                        <div className="text-right">
+                          {formatCurrency(remainingCPFCapacity)} remaining
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>SRS Contributions:</div>
+                        <div className="text-right">
+                          {formatCurrency(remainingSRSCapacity)} remaining
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
+                        <div>Total Available:</div>
+                        <div className="text-right">
+                          {formatCurrency(remainingReliefCapacity)}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>SRS Contributions:</div>
+                      <div className="text-right">
+                        {formatCurrency(remainingSRSCapacity)} remaining
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          <div className="space-y-2 text-sm">
-            {citizenshipStatus === 'CITIZEN_PR' ? (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>CPF Cash Top-up:</div>
-                  <div className="text-right">
-                    {formatCurrency(remainingCPFCapacity)} remaining
-                  </div>
+            <AccordionItem value="current-tax">
+              <AccordionTrigger className="bg-background/50 px-4 rounded-t">
+                Current Tax Breakdown
+              </AccordionTrigger>
+              <AccordionContent className="bg-background/50 px-4 pb-4 rounded-b">
+                <div className="pt-2">
+                  <TaxBreakdown 
+                    taxableIncome={taxableIncome} 
+                    totalTax={currentTax}
+                    showDetails
+                    className="bg-background/50"
+                  />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>SRS Contributions:</div>
-                  <div className="text-right">
-                    {formatCurrency(remainingSRSCapacity)} remaining
-                  </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="potential-tax">
+              <AccordionTrigger className="bg-background/50 px-4 rounded-t">
+                Tax After Relief
+              </AccordionTrigger>
+              <AccordionContent className="bg-background/50 px-4 pb-4 rounded-b">
+                <div className="pt-2">
+                  <TaxBreakdown 
+                    taxableIncome={potentialTaxableIncome} 
+                    totalTax={potentialTax}
+                    showDetails
+                    className="bg-background/50"
+                  />
                 </div>
-                <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
-                  <div>Total Available:</div>
-                  <div className="text-right">
-                    {formatCurrency(remainingReliefCapacity)}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <div>SRS Contributions:</div>
-                <div className="text-right">
-                  {formatCurrency(remainingSRSCapacity)} remaining
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="border-t pt-4">
-            <h4 className="font-medium mb-3">Current Tax Breakdown</h4>
-            <TaxBreakdown 
-              taxableIncome={taxableIncome} 
-              totalTax={currentTax}
-              showDetails
-              className="bg-background/50"
-            />
-          </div>
-          
-          <div className="border-t pt-4">
-            <h4 className="font-medium mb-3">Tax After Relief</h4>
-            <TaxBreakdown 
-              taxableIncome={potentialTaxableIncome} 
-              totalTax={potentialTax}
-              showDetails
-              className="bg-background/50"
-            />
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
     </Card>

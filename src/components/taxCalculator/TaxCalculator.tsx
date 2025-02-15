@@ -34,6 +34,12 @@ import { InfoIcon } from 'lucide-react';
 import { TaxSavingSuggestions } from './TaxSavingSuggestions';
 import { exportToExcel } from '@/lib/utils/excelExport';
 import { Download } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function TaxCalculator() {
   const [result, setResult] = useState<{
@@ -263,27 +269,31 @@ export function TaxCalculator() {
             </Button>
           </div>
           
-          <div className="space-y-4">
-            <div className="p-4 border rounded space-y-2">
-              <p>Gross Income: {formatCurrency(form.getValues('income'))}</p>
-              <p>Total Relief: {formatCurrency(result.totalRelief)}</p>
-              <p>Taxable Income: {formatCurrency(result.taxableIncome)}</p>
-              <p className="font-bold border-t pt-2">
-                Total Tax: {formatCurrency(result.totalTax)}
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="font-semibold">Breakdown:</h3>
-              {result.breakdown.map((item, index) => (
-                <div key={index} className="p-2 border rounded text-sm">
-                  <p>Rate: {(item.bracket.rate * 100).toFixed(1)}%</p>
-                  <p>Taxable Amount: {formatCurrency(item.taxableAmount)}</p>
-                  <p>Tax: {formatCurrency(item.taxForBracket)}</p>
-                </div>
-              ))}
-            </div>
+          <div className="p-4 border rounded space-y-2">
+            <p>Gross Income: {formatCurrency(form.getValues('income'))}</p>
+            <p>Total Relief: {formatCurrency(result.totalRelief)}</p>
+            <p>Taxable Income: {formatCurrency(result.taxableIncome)}</p>
+            <p className="font-bold border-t pt-2">
+              Total Tax: {formatCurrency(result.totalTax)}
+            </p>
           </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="breakdown">
+              <AccordionTrigger>Tax Breakdown</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-2 pt-2">
+                  {result.breakdown.map((item, index) => (
+                    <div key={index} className="p-2 border rounded text-sm">
+                      <p>Rate: {(item.bracket.rate * 100).toFixed(1)}%</p>
+                      <p>Taxable Amount: {formatCurrency(item.taxableAmount)}</p>
+                      <p>Tax: {formatCurrency(item.taxForBracket)}</p>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <TaxPieChart 
             income={form.getValues('income')} 
