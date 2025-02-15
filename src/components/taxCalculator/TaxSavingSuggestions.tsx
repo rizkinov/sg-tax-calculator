@@ -3,7 +3,7 @@
 import { formatCurrency } from "@/lib/utils";
 import { PROGRESSIVE_TAX_BRACKETS } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
-import { ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon, PartyPopper } from "lucide-react";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -48,9 +48,6 @@ export function TaxSavingSuggestions({
   // Calculate how much relief needed to drop to lower bracket
   const reliefNeeded = taxableIncome - previousBracket.max;
 
-  // Only show if we can actually move to a lower bracket
-  if (reliefNeeded <= 0) return null;
-
   // Calculate potential savings based on available relief
   const possibleRelief = Math.min(reliefNeeded, remainingReliefCapacity);
   if (possibleRelief <= 0) return null;
@@ -58,33 +55,50 @@ export function TaxSavingSuggestions({
   // Calculate new taxable income after possible relief
   const newTaxableIncome = taxableIncome - possibleRelief;
   
-  // Only show if we can actually move to a lower bracket
-  if (newTaxableIncome > previousBracket.max) return null;
+  // Check if we can reach lower bracket
+  const canReachLowerBracket = newTaxableIncome <= previousBracket.max;
 
+  // Calculate potential savings
   const potentialSavings = possibleRelief * (currentBracket.rate - previousBracket.rate);
+  if (potentialSavings <= 0) return null;
 
   return (
     <Card className="p-4 bg-muted/50">
-      <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
       <div className="space-y-2">
-        <p>
-          You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
-        </p>
-        {isOverLimit ? (
-          <p className="text-destructive">
-            Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}.
-            Consider adjusting your relief contributions to stay within the limits.
-          </p>
-        ) : possibleRelief > 0 ? (
-          <p>
-            By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
-            you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
-          </p>
+        {canReachLowerBracket ? (
+          <>
+            <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
+            <p>
+              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
+            </p>
+            {isOverLimit ? (
+              <p className="text-destructive">
+                Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}.
+                Consider adjusting your relief contributions to stay within the limits.
+              </p>
+            ) : (
+              <p>
+                By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
+                you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+              </p>
+            )}
+          </>
         ) : (
-          <p>
-            You have reached the maximum available relief for your tax bracket.
-          </p>
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <PartyPopper className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-lg">Tax Optimization Note</h3>
+            </div>
+            <p>
+              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket. Even with maximum available relief 
+              (additional {formatCurrency(possibleRelief)}), you would remain in this bracket.
+            </p>
+            <p>
+              However, you can still save on taxes by maximizing your eligible relief!
+            </p>
+          </>
         )}
+
         {potentialSavings > 0 && (
           <p className="font-medium text-primary">
             Potential tax savings: {formatCurrency(potentialSavings)}
