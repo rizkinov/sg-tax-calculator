@@ -3,8 +3,9 @@
 import { formatCurrency } from "@/lib/utils";
 import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
-import { ExternalLinkIcon, PartyPopper } from "lucide-react";
+import { ExternalLinkIcon, PartyPopper, Trophy } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
+import { cn } from "@/lib/utils";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -33,9 +34,13 @@ export function TaxSavingSuggestions({
   const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
   const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
 
+  // Check if relief is already maximized
+  const isMaximized = currentRelief >= TOTAL_MAX_RELIEF || 
+    (citizenshipStatus === 'FOREIGNER' && currentRelief >= MAX_SRS);
+
   // Early returns
   if (taxableIncome <= 20000) return null;
-  if (remainingReliefCapacity <= 0) return null;
+  if (remainingReliefCapacity <= 0 && !isMaximized) return null;
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
@@ -77,7 +82,45 @@ export function TaxSavingSuggestions({
   return (
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
-        {canReachLowerBracket ? (
+        {isMaximized ? (
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              <h3 className="font-semibold text-lg">Congratulations!</h3>
+            </div>
+            <div className="space-y-2">
+              <p>
+                You have maximized your {citizenshipStatus === 'FOREIGNER' ? 'SRS contributions' : 'tax relief contributions'}!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Current utilization:
+                {citizenshipStatus === 'CITIZEN_PR' ? (
+                  <ul className="list-disc ml-6 mt-1 space-y-1">
+                    <li>
+                      SRS: ${formatCurrency(Math.min(currentRelief, MAX_SRS))} 
+                      of ${formatCurrency(MAX_SRS)}
+                    </li>
+                    <li>
+                      CPF Cash Top-up: ${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} 
+                      of ${formatCurrency(MAX_CPF_RELIEF)}
+                    </li>
+                    <li className="font-medium">
+                      Total: ${formatCurrency(currentRelief)} 
+                      of ${formatCurrency(TOTAL_MAX_RELIEF)}
+                    </li>
+                  </ul>
+                ) : (
+                  <ul className="list-disc ml-6 mt-1">
+                    <li>
+                      SRS: ${formatCurrency(currentRelief)} 
+                      of ${formatCurrency(MAX_SRS)}
+                    </li>
+                  </ul>
+                )}
+              </p>
+            </div>
+          </>
+        ) : canReachLowerBracket ? (
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
             <p>
@@ -111,47 +154,51 @@ export function TaxSavingSuggestions({
           </>
         )}
 
-        <p className="font-medium text-primary">
-          Potential tax savings: {formatCurrency(taxSavings)}
-        </p>
+        {!isMaximized && (
+          <p className="font-medium text-primary">
+            Potential tax savings: {formatCurrency(taxSavings)}
+          </p>
+        )}
 
         <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">Available Relief Capacity</h4>
-            <div className="space-y-2 text-sm">
-              {citizenshipStatus === 'CITIZEN_PR' ? (
-                <>
+          {!isMaximized && (
+            <div>
+              <h4 className="font-medium mb-2">Available Relief Capacity</h4>
+              <div className="space-y-2 text-sm">
+                {citizenshipStatus === 'CITIZEN_PR' ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>SRS Contributions:</div>
+                      <div className="text-right">
+                        ${formatCurrency(remainingSRSCapacity)} remaining
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>CPF Cash Top-up:</div>
+                      <div className="text-right">
+                        ${formatCurrency(remainingCPFCapacity)} remaining
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
+                      <div>Total Available:</div>
+                      <div className="text-right">
+                        ${formatCurrency(remainingReliefCapacity)}
+                      </div>
+                    </div>
+                  </>
+                ) : (
                   <div className="grid grid-cols-2 gap-2">
                     <div>SRS Contributions:</div>
                     <div className="text-right">
                       ${formatCurrency(remainingSRSCapacity)} remaining
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>CPF Cash Top-up:</div>
-                    <div className="text-right">
-                      ${formatCurrency(remainingCPFCapacity)} remaining
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
-                    <div>Total Available:</div>
-                    <div className="text-right">
-                      ${formatCurrency(remainingReliefCapacity)}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <div>SRS Contributions:</div>
-                  <div className="text-right">
-                    ${formatCurrency(remainingSRSCapacity)} remaining
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
           
-          <div className="border-t pt-4">
+          <div className={cn(!isMaximized && "border-t pt-4")}>
             <h4 className="font-medium mb-3">Current Tax Breakdown</h4>
             <TaxBreakdown 
               taxableIncome={taxableIncome} 
@@ -161,15 +208,17 @@ export function TaxSavingSuggestions({
             />
           </div>
           
-          <div className="border-t pt-4">
-            <h4 className="font-medium mb-3">Tax After Relief</h4>
-            <TaxBreakdown 
-              taxableIncome={newTaxableIncome} 
-              totalTax={newTax}
-              showDetails
-              className="bg-background/50"
-            />
-          </div>
+          {!isMaximized && (
+            <div className="border-t pt-4">
+              <h4 className="font-medium mb-3">Tax After Relief</h4>
+              <TaxBreakdown 
+                taxableIncome={newTaxableIncome} 
+                totalTax={newTax}
+                showDetails
+                className="bg-background/50"
+              />
+            </div>
+          )}
         </div>
 
         <div className="text-sm text-muted-foreground mt-4 space-y-4">
