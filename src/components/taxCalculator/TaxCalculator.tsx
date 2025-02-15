@@ -145,11 +145,8 @@ export function TaxCalculator() {
                     type="number"
                     placeholder="Enter your annual income"
                     {...field}
-                    value={field.value === 0 ? '' : field.value}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === '' ? 0 : Number(value));
-                    }}
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -187,11 +184,8 @@ export function TaxCalculator() {
                       type="number"
                       placeholder="Enter CPF top-up amount"
                       {...field}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        field.onChange(value === '' ? 0 : Number(value));
-                      }}
                       value={field.value || ''}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -227,11 +221,8 @@ export function TaxCalculator() {
                     type="number"
                     placeholder="Enter SRS contribution"
                     {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === '' ? 0 : Number(value));
-                    }}
                     value={field.value || ''}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
