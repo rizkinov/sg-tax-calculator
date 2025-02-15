@@ -1,7 +1,11 @@
 'use client';
 
 import { formatCurrency } from "@/lib/utils";
-import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculator";
+import { 
+  PROGRESSIVE_TAX_BRACKETS, 
+  calculateTax, 
+  calculateTaxBreakdown 
+} from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon, PartyPopper, Download } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
@@ -13,6 +17,9 @@ interface TaxSavingSuggestionsProps {
   currentRelief: number;
   taxableIncome: number;
   citizenshipStatus: 'CITIZEN_PR' | 'FOREIGNER';
+  cpfTopUp?: number;
+  srsContribution?: number;
+  breakdown: ReturnType<typeof calculateTaxBreakdown>;
 }
 
 export function TaxSavingSuggestions({ 
@@ -21,7 +28,8 @@ export function TaxSavingSuggestions({
   taxableIncome,
   citizenshipStatus,
   cpfTopUp = 0,    // Add these parameters to track individual contributions
-  srsContribution = 0
+  srsContribution = 0,
+  breakdown
 }: TaxSavingSuggestionsProps & {
   cpfTopUp?: number;
   srsContribution?: number;
@@ -187,7 +195,7 @@ export function TaxSavingSuggestions({
                 },
                 currentTax: {
                   taxableIncome,
-                  breakdown: calculateTaxBreakdown(taxableIncome, 'EMPLOYEE'),
+                  breakdown: breakdown,
                   totalTax: currentTax
                 },
                 potentialTax: {

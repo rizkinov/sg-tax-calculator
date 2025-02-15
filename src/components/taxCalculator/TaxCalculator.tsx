@@ -298,6 +298,7 @@ export function TaxCalculator() {
               citizenshipStatus={form.getValues('citizenshipStatus')}
               cpfTopUp={form.getValues('cpfTopUp')}
               srsContribution={form.getValues('srsContribution')}
+              breakdown={result.breakdown}
             />
           )}
 
