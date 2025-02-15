@@ -149,10 +149,10 @@ export function TaxSavingSuggestions({
             </p>
             <p className="mb-2">
               To move to the <span className="font-semibold">{(previousBracket.rate * 100).toFixed(1)}%</span> tax bracket, 
-              you must contribute at least {formatCurrency(taxableIncome - previousBracket.max).replace('SGD', '')} in eligible tax relief.
+              you must contribute at least <span className="font-semibold">{formatCurrency(taxableIncome - previousBracket.max).replace('SGD', '')}</span> in eligible tax relief.
             </p>
             <p>
-              You may contribute up to {formatCurrency(remainingReliefCapacity).replace('SGD', '')}—any contribution within this range 
+              You may contribute up to <span className="font-semibold">{formatCurrency(remainingReliefCapacity).replace('SGD', '')}</span>—any contribution within this range 
               will lower your taxable income and help you benefit from the lower tax rate.
             </p>
           </>
@@ -177,15 +177,15 @@ export function TaxSavingSuggestions({
         <div className="space-y-2 text-sm">
           <div className="grid grid-cols-2 gap-2">
             <div>Current Tax Savings:</div>
-            <div className="text-right font-medium">{formatCurrency(currentTaxSavings)}</div>
+            <div className="text-right font-medium">{formatCurrency(currentTaxSavings).replace('SGD', '')}</div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>Additional Potential Savings:</div>
-            <div className="text-right font-medium text-primary">{formatCurrency(additionalTaxSavings)}</div>
+            <div className="text-right font-medium text-primary">{formatCurrency(additionalTaxSavings).replace('SGD', '')}</div>
           </div>
           <div className="grid grid-cols-2 gap-2 border-t pt-2">
             <div>Total Potential Savings:</div>
-            <div className="text-right font-medium">{formatCurrency(totalPotentialSavings)}</div>
+            <div className="text-right font-medium">{formatCurrency(totalPotentialSavings).replace('SGD', '')}</div>
           </div>
         </div>
 
@@ -241,6 +241,7 @@ export function TaxSavingSuggestions({
                     totalTax={currentTax}
                     showDetails
                     className="bg-background/50"
+                    removeCurrencyPrefix
                   />
                 </div>
               </AccordionContent>
@@ -257,6 +258,7 @@ export function TaxSavingSuggestions({
                     totalTax={potentialTax}
                     showDetails
                     className="bg-background/50"
+                    removeCurrencyPrefix
                   />
                 </div>
               </AccordionContent>

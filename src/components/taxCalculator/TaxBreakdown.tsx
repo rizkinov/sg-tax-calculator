@@ -9,13 +9,15 @@ interface TaxBreakdownProps {
   totalTax: number;
   showDetails?: boolean;
   className?: string;
+  removeCurrencyPrefix?: boolean;
 }
 
 export function TaxBreakdown({ 
   taxableIncome, 
   totalTax, 
   showDetails = false,
-  className 
+  className,
+  removeCurrencyPrefix
 }: TaxBreakdownProps) {
   const breakdown = PROGRESSIVE_TAX_BRACKETS.reduce((acc, bracket, index) => {
     const prevMax = index > 0 ? PROGRESSIVE_TAX_BRACKETS[index - 1].max || 0 : 0;
@@ -50,6 +52,11 @@ export function TaxBreakdown({
 
   const totalCalculatedTax = breakdown.reduce((sum, item) => sum + item.taxForBracket, 0);
 
+  const formatAmount = (amount: number) => {
+    const formatted = formatCurrency(amount);
+    return removeCurrencyPrefix ? formatted.replace('SGD', '') : formatted;
+  };
+
   return (
     <div className={cn("rounded-lg", className)}>
       {showDetails && (
@@ -68,15 +75,15 @@ export function TaxBreakdown({
                     {(item.rate * 100).toFixed(1)}%
                   </span>
                   <span>
-                    on ${formatCurrency(item.taxableAmount)}
+                    on {formatAmount(item.taxableAmount)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatCurrency(item.min)} to {item.max ? formatCurrency(item.max) : 'above'}
+                  {formatAmount(item.min)} to {item.max ? formatAmount(item.max) : 'above'}
                 </div>
               </div>
               <div className="font-medium tabular-nums">
-                ${formatCurrency(item.taxForBracket)}
+                {formatAmount(item.taxForBracket)}
               </div>
             </div>
           ))}
@@ -96,7 +103,7 @@ export function TaxBreakdown({
           )}
         </div>
         <div className="tabular-nums">
-          ${formatCurrency(totalTax)}
+          {formatAmount(totalTax)}
         </div>
       </div>
     </div>
