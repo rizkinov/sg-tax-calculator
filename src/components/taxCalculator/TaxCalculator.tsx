@@ -233,11 +233,25 @@ export function TaxCalculator() {
             tax={result.totalTax} 
           />
 
-          <TaxSavingSuggestions
-            income={form.getValues('income')}
-            currentRelief={result.totalRelief}
-            taxableIncome={result.taxableIncome}
-          />
+          {form.getValues('taxpayerType') !== 'CORPORATION' && (
+            <TaxSavingSuggestions
+              income={form.getValues('income')}
+              currentRelief={result.totalRelief}
+              taxableIncome={result.taxableIncome}
+            />
+          )}
+
+          <div className="text-xs text-muted-foreground">
+            Debug info:
+            <pre>
+              {JSON.stringify({
+                income: form.getValues('income'),
+                taxpayerType: form.getValues('taxpayerType'),
+                currentRelief: result.totalRelief,
+                taxableIncome: result.taxableIncome
+              }, null, 2)}
+            </pre>
+          </div>
 
           <div className="mt-8 text-sm text-muted-foreground space-y-2 border-t pt-4">
             <p className="font-medium">Disclaimer:</p>

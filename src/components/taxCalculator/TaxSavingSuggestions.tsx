@@ -11,15 +11,24 @@ interface TaxSavingSuggestionsProps {
 }
 
 export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: TaxSavingSuggestionsProps) {
+  console.log('TaxSavingSuggestions props:', { income, currentRelief, taxableIncome });
+
+  // Don't show suggestions if income is too low to be taxed
+  if (taxableIncome <= 20000) {
+    return null;
+  }
+
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
     bracket => taxableIncome > bracket.min && (!bracket.max || taxableIncome <= bracket.max)
   );
+  console.log('Current bracket:', currentBracket);
 
   // Find previous bracket
   const previousBracket = PROGRESSIVE_TAX_BRACKETS.find(
     bracket => currentBracket && bracket.max === currentBracket.min
   );
+  console.log('Previous bracket:', previousBracket);
 
   // Early return if no valid brackets found or if already in lowest bracket
   if (!currentBracket || !previousBracket || !previousBracket.max || currentBracket.rate <= previousBracket.rate) {
