@@ -145,13 +145,15 @@ export function TaxSavingSuggestions({
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
             <p className="mb-2">
-              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
+              You are currently in the <span className="font-semibold">{(currentBracket.rate * 100).toFixed(1)}%</span> tax bracket.
             </p>
             <p className="mb-2">
-              To move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket, you must contribute at least {formatCurrency(taxableIncome - previousBracket.max)} in eligible tax relief.
+              To move to the <span className="font-semibold">{(previousBracket.rate * 100).toFixed(1)}%</span> tax bracket, 
+              you must contribute at least {formatCurrency(taxableIncome - previousBracket.max).replace('SGD', '')} in eligible tax relief.
             </p>
             <p>
-              You may contribute up to {formatCurrency(remainingReliefCapacity)}—any contribution within this range will lower your taxable income and help you benefit from the lower tax rate.
+              You may contribute up to {formatCurrency(remainingReliefCapacity).replace('SGD', '')}—any contribution within this range 
+              will lower your taxable income and help you benefit from the lower tax rate.
             </p>
           </>
         ) : (
@@ -161,12 +163,13 @@ export function TaxSavingSuggestions({
               <h3 className="font-semibold text-lg">Tax Optimization Note</h3>
             </div>
             <p className="mb-2">
-              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
+              You are currently in the <span className="font-semibold">{(currentBracket.rate * 100).toFixed(1)}%</span> tax bracket.
             </p>
             <p>
               While you'll remain in this bracket even with maximum relief contributions, 
-              you can still save {formatCurrency(additionalTaxSavings)} in taxes by utilizing your remaining 
-              eligible relief of {formatCurrency(remainingReliefCapacity)}.
+              you can still save <span className="font-semibold">{formatCurrency(additionalTaxSavings).replace('SGD', '')}</span> in taxes 
+              by utilizing your remaining eligible relief of <span className="font-semibold">
+              {formatCurrency(remainingReliefCapacity).replace('SGD', '')}</span>.
             </p>
           </>
         )}
