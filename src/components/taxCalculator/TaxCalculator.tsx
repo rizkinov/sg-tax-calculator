@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InfoIcon } from 'lucide-react';
+import { TaxSavingSuggestions } from './TaxSavingSuggestions';
 
 export function TaxCalculator() {
   const [result, setResult] = useState<{
@@ -230,6 +231,12 @@ export function TaxCalculator() {
           <TaxPieChart 
             income={form.getValues('income')} 
             tax={result.totalTax} 
+          />
+
+          <TaxSavingSuggestions
+            income={form.getValues('income')}
+            currentRelief={result.totalRelief}
+            taxableIncome={result.taxableIncome}
           />
 
           <div className="mt-8 text-sm text-muted-foreground space-y-2 border-t pt-4">
