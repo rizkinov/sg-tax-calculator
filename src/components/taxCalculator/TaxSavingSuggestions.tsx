@@ -6,6 +6,13 @@ import { Trophy, Sparkles, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -32,6 +39,9 @@ export function TaxSavingSuggestions({
   if (taxableIncome <= 20000) return null;
 
   const remainingRelief = MAX_SRS - currentRelief;
+
+  // Calculate potential tax savings
+  const potentialSavings = (remainingRelief * (citizenshipStatus === 'FOREIGNER' ? 0.22 : 0.20));
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -168,6 +178,31 @@ export function TaxSavingSuggestions({
           >
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-lg">Tax Relief Progress</h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm">
+                    <p>Maximize your tax savings by utilizing available relief options:</p>
+                    {citizenshipStatus === 'CITIZEN_PR' ? (
+                      <ul className="list-disc ml-4 mt-2 space-y-1">
+                        <li>SRS: Up to $15,300 per year</li>
+                        <li>CPF Cash Top-up: Up to $16,000 per year
+                          <ul className="list-disc ml-4 mt-1">
+                            <li>Own Account: Up to $8,000</li>
+                            <li>Family Members: Up to $8,000</li>
+                          </ul>
+                        </li>
+                      </ul>
+                    ) : (
+                      <ul className="list-disc ml-4 mt-2">
+                        <li>SRS: Up to $35,700 per year</li>
+                      </ul>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
 
             <div className="bg-primary/5 rounded-lg p-4 space-y-4">
@@ -244,12 +279,65 @@ export function TaxSavingSuggestions({
                   </div>
                 )}
 
-                <div className="pt-3 border-t">
-                  <p className="text-sm text-muted-foreground">
-                    You can still contribute up to ${formatCurrency(remainingRelief)} to your 
-                    {citizenshipStatus === 'FOREIGNER' ? ' SRS account' : ' tax relief'} 
-                    to maximize your tax savings.
-                  </p>
+                <div className="pt-3 space-y-3 border-t">
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      You can still contribute up to ${formatCurrency(remainingRelief)} to your
+                      {citizenshipStatus === 'FOREIGNER' ? ' SRS account ' : ' tax relief '} 
+                      to maximize your tax savings.
+                    </p>
+                    <div className="bg-primary/10 p-3 rounded-lg">
+                      <h4 className="font-medium text-sm mb-2">Potential Benefits:</h4>
+                      <ul className="space-y-1.5 text-sm">
+                        <li className="flex items-center gap-2">
+                          <span className="text-primary">•</span>
+                          Estimated tax savings: Up to ${formatCurrency(potentialSavings)}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-primary">•</span>
+                          {citizenshipStatus === 'FOREIGNER' ? (
+                            'Build your retirement savings with tax benefits'
+                          ) : (
+                            'Flexible options between SRS and CPF Top-up'
+                          )}
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <span className="text-primary">•</span>
+                          Reduce your taxable income
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Next Steps:</h4>
+                  <div className="grid gap-2">
+                    <Button variant="outline" className="justify-start group" asChild>
+                      <a 
+                        href={citizenshipStatus === 'FOREIGNER' 
+                          ? "https://www.iras.gov.sg/taxes/individual-income-tax/foreigners/tax-reliefs-for-foreigners"
+                          : "https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions"
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2"
+                      >
+                        Learn more about tax reliefs
+                        <ExternalLink className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                      </a>
+                    </Button>
+                    <Button variant="outline" className="justify-start group" asChild>
+                      <a 
+                        href="https://www.mas.gov.sg/schemes-and-initiatives/supplementary-retirement-scheme-srs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2"
+                      >
+                        About SRS
+                        <ExternalLink className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                      </a>
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
