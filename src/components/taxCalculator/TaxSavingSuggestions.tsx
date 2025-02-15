@@ -1,7 +1,7 @@
 'use client';
 
 import { formatCurrency } from "@/lib/utils";
-import { PROGRESSIVE_TAX_BRACKETS } from "@/lib/utils/taxCalculator";
+import { PROGRESSIVE_TAX_BRACKETS, TaxBracket } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
 
 interface TaxSavingSuggestionsProps {
@@ -21,7 +21,8 @@ export function TaxSavingSuggestions({ income, currentRelief, taxableIncome }: T
     bracket => currentBracket && bracket.max === currentBracket.min
   );
 
-  if (!currentBracket || !previousBracket || currentBracket.rate <= previousBracket.rate) {
+  // Early return if no valid brackets found or if already in lowest bracket
+  if (!currentBracket || !previousBracket || !previousBracket.max || currentBracket.rate <= previousBracket.rate) {
     return null;
   }
 
