@@ -22,20 +22,18 @@ export const taxCalculatorSchema = z.object({
     .min(0, 'SRS contribution must be a positive number')
     .optional()
     .default(0)
-    .superRefine((val, ctx) => {
-      const parentForm = ctx.parent as { citizenshipStatus?: string };
-      const maxSRS = parentForm.citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
+    .refine((val, ctx) => {
+      const maxSRS = ctx.path.includes('FOREIGNER') ? 35700 : 15300;
       if (val > maxSRS) {
         ctx.addIssue({
-          code: z.ZodIssueCode.too_big,
-          maximum: maxSRS,
-          type: "number",
-          inclusive: true,
+          code: z.ZodIssueCode.custom,
           message: `Maximum SRS contribution is $${maxSRS.toLocaleString()} for ${
-            parentForm.citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'
+            ctx.path.includes('FOREIGNER') ? 'Foreigners' : 'Citizens & PR'
           }`,
         });
+        return false;
       }
+      return true;
     }),
 });
 
