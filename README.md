@@ -88,7 +88,7 @@ This calculator provides unofficial estimates based on IRAS guidelines for Year 
 
 For the most current information, visit [IRAS](https://www.iras.gov.sg).
 
-Last Updated: February 2024
+Last Updated: February 2025
 
 ## License
 
