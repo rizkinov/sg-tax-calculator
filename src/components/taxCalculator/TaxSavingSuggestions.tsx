@@ -65,28 +65,13 @@ export function TaxSavingSuggestions({
   // Calculate current tax
   const currentTax = calculateTax(taxableIncome, 'EMPLOYEE');
 
-  // Calculate tax with maximum possible additional relief
-  const possibleRelief = Math.min(
-    remainingReliefCapacity,
-    citizenshipStatus === 'FOREIGNER' ? 
-      Math.min(remainingSRSCapacity, income - taxableIncome) :
-      Math.min(remainingSRSCapacity + remainingCPFCapacity, income - taxableIncome)
-  );
-  const newTaxableIncome = taxableIncome - possibleRelief;
-  const newTax = calculateTax(newTaxableIncome, 'EMPLOYEE');
-  
-  // Calculate tax savings
-  const taxSavings = currentTax - newTax;
-  if (taxSavings <= 0) return null;
-
-  // Check if we can reach lower bracket
-  const canReachLowerBracket = newTaxableIncome <= previousBracket.max;
-
   // Calculate current tax savings (from current relief)
   const currentTaxSavings = calculateTax(income, 'EMPLOYEE') - currentTax;
 
-  // Calculate potential additional tax savings (if max relief is used)
-  const additionalTaxSavings = currentTax - newTax;
+  // Calculate potential additional tax savings based on remaining relief capacity
+  const potentialTaxableIncome = Math.max(0, taxableIncome - remainingReliefCapacity);
+  const potentialTax = calculateTax(potentialTaxableIncome, 'EMPLOYEE');
+  const additionalTaxSavings = currentTax - potentialTax;
   const totalPotentialSavings = currentTaxSavings + additionalTaxSavings;
 
   if (additionalTaxSavings <= 0) return null;
@@ -192,8 +177,8 @@ export function TaxSavingSuggestions({
           <div className="border-t pt-4">
             <h4 className="font-medium mb-3">Tax After Relief</h4>
             <TaxBreakdown 
-              taxableIncome={newTaxableIncome} 
-              totalTax={newTax}
+              taxableIncome={potentialTaxableIncome} 
+              totalTax={potentialTax}
               showDetails
               className="bg-background/50"
             />
