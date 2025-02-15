@@ -16,6 +16,9 @@ import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculato
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon, PartyPopper } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
+<<<<<<< HEAD
+>>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
+=======
 >>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
 
 interface TaxSavingSuggestionsProps {
@@ -35,6 +38,7 @@ export function TaxSavingSuggestions({
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
   
+<<<<<<< HEAD
   const isMaximized = citizenshipStatus === 'FOREIGNER' 
     ? currentRelief >= MAX_SRS 
     : currentRelief >= TOTAL_MAX_RELIEF;
@@ -42,6 +46,14 @@ export function TaxSavingSuggestions({
 <<<<<<< HEAD
   if (taxableIncome <= 20000) return null;
 =======
+  // Early returns
+  if (taxableIncome <= 20000) return null;
+  if (remainingReliefCapacity <= 0) return null;
+>>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
+=======
+  const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
+  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
+
   // Early returns
   if (taxableIncome <= 20000) return null;
   if (remainingReliefCapacity <= 0) return null;
@@ -217,6 +229,7 @@ export function TaxSavingSuggestions({
             />
           </div>
         </div>
+<<<<<<< HEAD
 >>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
 
             <div className="grid gap-2">
@@ -232,6 +245,33 @@ export function TaxSavingSuggestions({
                 </a>
               </Button>
             </div>
+=======
+
+        <div className="text-sm text-muted-foreground mt-4 space-y-4">
+          <div>
+            <p className="font-medium mb-2">
+              Maximum relief limits shown here only include:
+            </p>
+            <ul className="list-disc ml-6">
+              {citizenshipStatus === 'CITIZEN_PR' ? (
+                <>
+                  <li>CPF Cash Top-up Relief: Up to $16,000
+                    <ul className="list-disc ml-6 mt-1">
+                      <li>Own CPF Account: Up to $8,000</li>
+                      <li>Family Members' CPF Accounts: Up to $8,000</li>
+                    </ul>
+                  </li>
+                  <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
+                  <li className="font-medium mt-1">Total combined limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
+                </>
+              ) : (
+                <>
+                  <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
+                  <li className="font-medium mt-1">Total limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
+                </>
+              )}
+            </ul>
+>>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
           </div>
         </div>
       )}
