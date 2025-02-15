@@ -98,7 +98,7 @@ export function TaxSavingSuggestions({
               </p>
             ) : (
               <p>
-                By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
+                By contributing an additional ${formatCurrency(remainingReliefCapacity)} to your eligible tax relief,
                 you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
               </p>
             )}
@@ -111,7 +111,7 @@ export function TaxSavingSuggestions({
             </div>
             <p>
               You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket. Even with maximum available relief 
-              (additional {formatCurrency(possibleRelief)}), you would remain in this bracket.
+              (additional ${formatCurrency(remainingReliefCapacity)}), you would remain in this bracket.
             </p>
             <p>
               However, you can still save on taxes by maximizing your eligible relief!
