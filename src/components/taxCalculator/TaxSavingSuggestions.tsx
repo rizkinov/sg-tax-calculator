@@ -40,12 +40,11 @@ export function TaxSavingSuggestions({
     Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - MAX_SRS)) : 0;
   
   const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
-  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
 
-  // Check if relief is already maximized (updated logic)
+  // Updated isMaximized logic
   const isMaximized = citizenshipStatus === 'FOREIGNER' 
-    ? currentRelief >= MAX_SRS 
-    : currentRelief >= TOTAL_MAX_RELIEF;
+    ? currentRelief >= 35700  // For foreigners, check against max SRS only
+    : currentRelief >= 31300; // For citizens/PR, check against total max relief
 
   console.log({
     currentRelief,
@@ -55,13 +54,12 @@ export function TaxSavingSuggestions({
     remainingSRSCapacity,
     remainingCPFCapacity,
     isMaximized,
-    citizenshipStatus
+    citizenshipStatus,
+    condition: citizenshipStatus === 'FOREIGNER' ? currentRelief >= 35700 : currentRelief >= 31300
   });
 
-  // Early returns
+  // Remove early returns that might prevent showing the card
   if (taxableIncome <= 20000) return null;
-  // Remove this condition to always show the card when maximized
-  // if (remainingReliefCapacity <= 0 && !isMaximized) return null;
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
@@ -268,7 +266,7 @@ export function TaxSavingSuggestions({
             <p>
               You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
             </p>
-            {isOverLimit ? (
+            {isMaximized ? (
               <p className="text-destructive">
                 Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}.
                 Consider adjusting your relief contributions to stay within the limits.
