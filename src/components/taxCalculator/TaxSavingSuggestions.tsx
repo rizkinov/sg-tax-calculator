@@ -1,9 +1,10 @@
 'use client';
 
 import { formatCurrency } from "@/lib/utils";
-import { PROGRESSIVE_TAX_BRACKETS } from "@/lib/utils/taxCalculator";
+import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon, PartyPopper } from "lucide-react";
+import { TaxBreakdown } from "./TaxBreakdown";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -23,15 +24,12 @@ export function TaxSavingSuggestions({
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
   // Don't show suggestions if income is too low to be taxed
-  if (taxableIncome <= 20000) {
-    return null;
-  }
+  if (taxableIncome <= 20000) return null;
 
   // Find current tax bracket
   const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
     bracket => taxableIncome >= bracket.min && (bracket.max === null || taxableIncome <= bracket.max)
   );
-
   if (!currentBracket) return null;
 
   // Find the next lower bracket
@@ -44,23 +42,22 @@ export function TaxSavingSuggestions({
   // Calculate remaining relief capacity
   const remainingReliefCapacity = TOTAL_MAX_RELIEF - currentRelief;
   const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
+  if (remainingReliefCapacity <= 0) return null;
 
-  // Calculate how much relief needed to drop to lower bracket
-  const reliefNeeded = taxableIncome - previousBracket.max;
+  // Calculate current tax
+  const currentTax = calculateTax(taxableIncome, 'EMPLOYEE');
 
-  // Calculate potential savings based on available relief
-  const possibleRelief = Math.min(reliefNeeded, remainingReliefCapacity);
-  if (possibleRelief <= 0) return null;
-
-  // Calculate new taxable income after possible relief
+  // Calculate tax with maximum possible additional relief
+  const possibleRelief = Math.min(remainingReliefCapacity, income - taxableIncome);
   const newTaxableIncome = taxableIncome - possibleRelief;
+  const newTax = calculateTax(newTaxableIncome, 'EMPLOYEE');
   
+  // Calculate tax savings
+  const taxSavings = currentTax - newTax;
+  if (taxSavings <= 0) return null;
+
   // Check if we can reach lower bracket
   const canReachLowerBracket = newTaxableIncome <= previousBracket.max;
-
-  // Calculate potential savings
-  const potentialSavings = possibleRelief * (currentBracket.rate - previousBracket.rate);
-  if (potentialSavings <= 0) return null;
 
   return (
     <Card className="p-4 bg-muted/50">
@@ -99,11 +96,31 @@ export function TaxSavingSuggestions({
           </>
         )}
 
-        {potentialSavings > 0 && (
-          <p className="font-medium text-primary">
-            Potential tax savings: {formatCurrency(potentialSavings)}
-          </p>
-        )}
+        <p className="font-medium text-primary">
+          Potential tax savings: {formatCurrency(taxSavings)}
+        </p>
+
+        <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
+          <div>
+            <h4 className="font-medium mb-3">Current Tax Breakdown</h4>
+            <TaxBreakdown 
+              taxableIncome={taxableIncome} 
+              totalTax={currentTax}
+              showDetails
+              className="bg-background/50"
+            />
+          </div>
+          
+          <div className="border-t pt-4">
+            <h4 className="font-medium mb-3">Tax After Relief</h4>
+            <TaxBreakdown 
+              taxableIncome={newTaxableIncome} 
+              totalTax={newTax}
+              showDetails
+              className="bg-background/50"
+            />
+          </div>
+        </div>
 
         <div className="text-sm text-muted-foreground mt-4 space-y-4">
           <div>
