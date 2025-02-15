@@ -145,7 +145,11 @@ export function TaxCalculator() {
                     type="number"
                     placeholder="Enter your annual income"
                     {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    value={field.value === 0 ? '' : field.value}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === '' ? 0 : Number(value));
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
