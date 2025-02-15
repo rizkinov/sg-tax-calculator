@@ -52,7 +52,33 @@ Maximum Combined Relief:
 
 ### Tax Savings Calculation Examples
 
-#### Example 1: Singapore Citizen/PR
+#### Example 1: Singapore Citizen/PR - Can Move to Lower Bracket
+
+Input:
+- Annual Income: $165,000
+- Taxpayer Type: Employee
+- Citizenship: Singapore Citizen/PR
+- Current Relief: $4,000 (CPF Cash Top-up)
+
+Calculation:
+1. Current Status:
+   - Taxable Income: $161,000 ($165,000 - $4,000)
+   - Current Tax Bracket: 18% (taxable income between $160,000 to $200,000)
+   - Total Tax: $16,750
+
+2. Tax Saving Opportunity:
+   - Next Lower Bracket: 15% (applies to income between $120,000 to $160,000)
+   - Additional Relief Needed: $1,000 ($161,000 - $160,000)
+   - Maximum Combined Relief: $31,300
+     * CPF Cash Top-up: $16,000 ($8,000 own + $8,000 family)
+     * SRS: $15,300
+   - Current Relief Used: $4,000
+   - Remaining Relief Capacity: $27,300 ($31,300 max - $4,000 current)
+   - Suggested Relief: $1,000 (enough to move to lower bracket)
+   - Potential Tax Savings: $30 
+     ($1,000 × (18% - 15%) = $1,000 × 3% = $30)
+
+#### Example 2: Singapore Citizen/PR - Maximum Relief but Same Bracket
 
 Input:
 - Annual Income: $200,000
@@ -66,24 +92,15 @@ Calculation:
    - Current Tax Bracket: 18% (taxable income between $160,000 to $200,000)
    - Total Tax: $19,709.82
 
-2. Tax Saving Opportunity:
-   - Next Lower Bracket: 15% (applies to income between $120,000 to $160,000)
-   - Additional Relief Needed: $32,000 ($192,000 - $160,000)
+2. Tax Optimization Note:
+   - Remaining in 18% bracket even with maximum relief
    - Maximum Combined Relief: $31,300
-     * CPF Cash Top-up: $16,000 ($8,000 own + $8,000 family)
-     * SRS: $15,300
    - Current Relief Used: $8,000
-   - Remaining Relief Capacity: $23,300 ($31,300 max - $8,000 current)
-   - Suggested Relief: $23,300 (limited by remaining capacity)
-   - Potential Tax Savings: $699 
-     ($23,300 × (18% - 15%) = $23,300 × 3% = $699)
+   - Additional Possible Relief: $23,300
+   - Potential Tax Savings: $699
+     ($23,300 × 3% = $699 savings within same bracket)
 
-3. Available Options:
-   - Can contribute up to $8,000 more to CPF
-   - Can contribute up to $15,300 to SRS
-   - Total remaining capacity: $23,300
-
-#### Example 2: Foreigner
+#### Example 3: Foreigner - SRS Only
 
 Input:
 - Annual Income: $200,000
@@ -97,22 +114,39 @@ Calculation:
    - Current Tax Bracket: 18% (taxable income between $160,000 to $200,000)
    - Total Tax: $19,349.82
 
-2. Tax Saving Opportunity:
-   - Next Lower Bracket: 15% (applies to income between $120,000 to $160,000)
-   - Additional Relief Needed: $30,000 ($190,000 - $160,000)
+2. Tax Optimization Note:
    - Maximum Relief: $35,700 (SRS only, not eligible for CPF)
    - Current Relief Used: $10,000
-   - Remaining Relief Capacity: $25,700 ($35,700 max - $10,000 current)
-   - Suggested Relief: $25,700 (limited by remaining capacity)
+   - Additional Possible Relief: $25,700
    - Potential Tax Savings: $771
-     ($25,700 × (18% - 15%) = $25,700 × 3% = $771)
+     ($25,700 × 3% = $771 savings within same bracket)
+   - Note: Not eligible for CPF Cash Top-up
 
-3. Available Options:
-   - Can contribute up to $25,700 more to SRS
-   - Not eligible for CPF Cash Top-up
-   - Total remaining capacity: $25,700
+#### Example 4: Singapore Citizen/PR - Lower Income Bracket
 
-Note: The calculator suggests optimal relief contributions while ensuring you stay within the maximum relief limits based on your residency status. Other tax reliefs (e.g., Parent Relief, Course Fees Relief) are not included in these calculations.
+Input:
+- Annual Income: $100,000
+- Taxpayer Type: Employee
+- Citizenship: Singapore Citizen/PR
+- Current Relief: $5,000 (CPF Cash Top-up)
+
+Calculation:
+1. Current Status:
+   - Taxable Income: $95,000 ($100,000 - $5,000)
+   - Current Tax Bracket: 11.5% (taxable income between $80,000 to $120,000)
+   - Total Tax: $5,350
+
+2. Tax Saving Opportunity:
+   - Next Lower Bracket: 7% (applies to income between $40,000 to $80,000)
+   - Additional Relief Needed: $15,000 ($95,000 - $80,000)
+   - Maximum Combined Relief: $31,300
+   - Current Relief Used: $5,000
+   - Remaining Relief Capacity: $26,300
+   - Suggested Relief: $15,000 (can move to lower bracket)
+   - Potential Tax Savings: $675
+     ($15,000 × (11.5% - 7%) = $15,000 × 4.5% = $675)
+
+Note: The calculator suggests optimal relief contributions while ensuring you stay within the maximum relief limits based on your residency status. Other tax reliefs (e.g., Parent Relief, Course Fees Relief) are not included in these calculations but could provide additional tax savings.
 
 ## Development
 
