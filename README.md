@@ -144,7 +144,7 @@ Calculation:
 1. Current Status:
    - Taxable Income: $95,000 ($100,000 - $5,000)
    - Current Tax Bracket: 11.5% (taxable income between $80,000 to $120,000)
-   - Total Tax: $5,350
+   - Total Tax: $5,075
      * First $20,000: $0
      * Next $10,000 at 2%: $200
      * Next $10,000 at 3.5%: $350
