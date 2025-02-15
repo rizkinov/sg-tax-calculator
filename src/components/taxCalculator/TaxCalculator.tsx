@@ -150,7 +150,7 @@ export function TaxCalculator() {
               {' '}for the most current information.
             </p>
             <p className="text-xs">
-              Last updated: February 2024
+              Last updated: February 2025
             </p>
           </div>
         </div>
