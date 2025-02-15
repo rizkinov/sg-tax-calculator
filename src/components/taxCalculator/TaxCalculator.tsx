@@ -46,6 +46,9 @@ export function TaxCalculator() {
     defaultValues: {
       income: undefined,
       taxpayerType: 'EMPLOYEE',
+      citizenshipStatus: 'CITIZEN_PR',
+      cpfTopUp: 0,
+      srsContribution: 0,
     },
   });
 
