@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
+import { TaxPieChart } from './TaxPieChart';
 
 export function TaxCalculator() {
   const [result, setResult] = useState<{
@@ -104,24 +105,31 @@ export function TaxCalculator() {
       </Form>
 
       {result && (
-        <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-semibold">Tax Calculation Results</h2>
-          <div className="p-4 border rounded">
-            <p className="font-bold">
-              Total Tax: {formatCurrency(result.totalTax)}
-            </p>
+        <div className="mt-8 space-y-8">
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Tax Calculation Results</h2>
+            <div className="p-4 border rounded">
+              <p className="font-bold">
+                Total Tax: {formatCurrency(result.totalTax)}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold">Breakdown:</h3>
+              {result.breakdown.map((item, index) => (
+                <div key={index} className="p-2 border rounded text-sm">
+                  <p>Rate: {(item.bracket.rate * 100).toFixed(1)}%</p>
+                  <p>Taxable Amount: {formatCurrency(item.taxableAmount)}</p>
+                  <p>Tax: {formatCurrency(item.taxForBracket)}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <h3 className="font-semibold">Breakdown:</h3>
-            {result.breakdown.map((item, index) => (
-              <div key={index} className="p-2 border rounded text-sm">
-                <p>Rate: {(item.bracket.rate * 100).toFixed(1)}%</p>
-                <p>Taxable Amount: {formatCurrency(item.taxableAmount)}</p>
-                <p>Tax: {formatCurrency(item.taxForBracket)}</p>
-              </div>
-            ))}
-          </div>
+
+          <TaxPieChart 
+            income={form.getValues('income')} 
+            tax={result.totalTax} 
+          />
         </div>
       )}
     </div>
