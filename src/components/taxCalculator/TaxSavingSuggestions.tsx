@@ -32,33 +32,19 @@ export function TaxSavingSuggestions({
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
-  // Calculate remaining relief capacity by type
-  const remainingSRSCapacity = MAX_SRS - (
-    citizenshipStatus === 'FOREIGNER' ? currentRelief : Math.min(currentRelief, MAX_SRS)
-  );
-  const remainingCPFCapacity = citizenshipStatus === 'CITIZEN_PR' ? 
-    Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - MAX_SRS)) : 0;
-  
-  const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
-
   // Updated isMaximized logic
   const isMaximized = citizenshipStatus === 'FOREIGNER' 
     ? currentRelief >= 35700  // For foreigners, check against max SRS only
     : currentRelief >= 31300; // For citizens/PR, check against total max relief
 
-  console.log({
-    currentRelief,
-    MAX_SRS,
-    MAX_CPF_RELIEF,
-    TOTAL_MAX_RELIEF,
-    remainingSRSCapacity,
-    remainingCPFCapacity,
+  console.log('Debug render:', {
     isMaximized,
+    currentRelief,
     citizenshipStatus,
-    condition: citizenshipStatus === 'FOREIGNER' ? currentRelief >= 35700 : currentRelief >= 31300
+    shouldShowCard: isMaximized && taxableIncome > 20000
   });
 
-  // Remove early returns that might prevent showing the card
+  // Only check for minimum taxable income
   if (taxableIncome <= 20000) return null;
 
   // Find current tax bracket
@@ -79,14 +65,8 @@ export function TaxSavingSuggestions({
 
   // Calculate tax with maximum possible additional relief
   const possibleRelief = Math.min(
-    remainingReliefCapacity,
-    citizenshipStatus === 'FOREIGNER' ? 
-      Math.min(remainingSRSCapacity, income - taxableIncome) :
-      Math.min(
-        // For Citizens/PR, consider both SRS and CPF limits
-        remainingSRSCapacity + remainingCPFCapacity,
-        income - taxableIncome
-      )
+    MAX_SRS - currentRelief,
+    income - taxableIncome
   );
   const newTaxableIncome = taxableIncome - possibleRelief;
   const newTax = calculateTax(newTaxableIncome, 'EMPLOYEE');
@@ -303,19 +283,19 @@ export function TaxSavingSuggestions({
                     <div className="grid grid-cols-2 gap-2">
                       <div>SRS Contributions:</div>
                       <div className="text-right">
-                        ${formatCurrency(remainingSRSCapacity)} remaining
+                        ${formatCurrency(MAX_SRS - currentRelief)} remaining
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>CPF Cash Top-up:</div>
                       <div className="text-right">
-                        ${formatCurrency(remainingCPFCapacity)} remaining
+                        ${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} remaining
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
                       <div>Total Available:</div>
                       <div className="text-right">
-                        ${formatCurrency(remainingReliefCapacity)}
+                        ${formatCurrency(MAX_SRS - currentRelief + Math.max(0, currentRelief - MAX_SRS))}
                       </div>
                     </div>
                   </>
@@ -323,7 +303,7 @@ export function TaxSavingSuggestions({
                   <div className="grid grid-cols-2 gap-2">
                     <div>SRS Contributions:</div>
                     <div className="text-right">
-                      ${formatCurrency(remainingSRSCapacity)} remaining
+                      ${formatCurrency(MAX_SRS - currentRelief)} remaining
                     </div>
                   </div>
                 )}
