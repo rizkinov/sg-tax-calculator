@@ -2,7 +2,7 @@
 
 import { formatCurrency } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { Trophy, Sparkles, ExternalLink } from "lucide-react";
+import { Trophy, Sparkles, ExternalLink, InfoIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
 
 interface TaxSavingSuggestionsProps {
   income: number;
