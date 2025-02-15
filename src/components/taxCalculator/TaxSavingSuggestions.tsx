@@ -3,6 +3,7 @@
 import { formatCurrency } from "@/lib/utils";
 import { PROGRESSIVE_TAX_BRACKETS } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
+import { ExternalLinkIcon } from "lucide-react";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -82,17 +83,58 @@ export function TaxSavingSuggestions({
         <p className="font-medium text-primary">
           Potential tax savings: {formatCurrency(potentialSavings)}
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Maximum relief limits for {citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'}:
-          <ul className="list-disc ml-6 mt-1">
-            {citizenshipStatus === 'CITIZEN_PR' && (
-              <li>CPF Cash Top-up: Up to $16,000 ($8,000 own account + $8,000 family members)</li>
-            )}
-            <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
-            <li>Total combined limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
-          </ul>
-          Consult a tax professional for personalized advice.
-        </p>
+        <div className="text-sm text-muted-foreground mt-4 space-y-4">
+          <div>
+            <p className="font-medium mb-2">
+              Maximum relief limits shown here only include:
+            </p>
+            <ul className="list-disc ml-6">
+              {citizenshipStatus === 'CITIZEN_PR' ? (
+                <>
+                  <li>CPF Cash Top-up Relief: Up to $16,000
+                    <ul className="list-disc ml-6 mt-1">
+                      <li>Own CPF Account: Up to $8,000</li>
+                      <li>Family Members' CPF Accounts: Up to $8,000</li>
+                    </ul>
+                  </li>
+                  <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
+                  <li className="font-medium mt-1">Total combined limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
+                </>
+              ) : (
+                <>
+                  <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
+                  <li className="font-medium mt-1">Total limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
+                </>
+              )}
+            </ul>
+          </div>
+
+          <div className="pt-2 border-t">
+            <p className="mb-2">
+              Other tax reliefs are available but not included in this calculation:
+            </p>
+            <ul className="list-disc ml-6">
+              <li>Course Fees Relief</li>
+              <li>Parent Relief</li>
+              <li>Working Mother's Child Relief</li>
+              <li>Life Insurance Relief</li>
+              <li>And more...</li>
+            </ul>
+            <a 
+              href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:underline mt-2"
+            >
+              Learn more about tax reliefs on IRAS website
+              <ExternalLinkIcon className="h-3 w-3" />
+            </a>
+          </div>
+
+          <p className="italic">
+            Consult a tax professional for personalized advice.
+          </p>
+        </div>
       </div>
     </Card>
   );
