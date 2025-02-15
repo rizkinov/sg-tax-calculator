@@ -36,6 +36,9 @@ export function TaxSavingSuggestions({
 
   const remainingRelief = MAX_SRS - currentRelief;
   const potentialSavings = (remainingRelief * (citizenshipStatus === 'FOREIGNER' ? 0.22 : 0.20));
+  
+  // Calculate potential taxable income after maximizing relief
+  const potentialTaxableIncome = Math.max(0, taxableIncome - remainingRelief);
 
   return (
     <div className="rounded-lg border bg-white p-4">
@@ -77,14 +80,33 @@ export function TaxSavingSuggestions({
           </div>
 
           <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm">
-              You can still contribute up to ${formatCurrency(remainingRelief)} to your
-              {citizenshipStatus === 'FOREIGNER' ? ' SRS account ' : ' tax relief '} 
-              to maximize your tax savings.
-            </p>
-            <p className="text-sm font-medium">
-              Potential tax savings: Up to ${formatCurrency(potentialSavings)}
-            </p>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Current Taxable Income:</div>
+                <div className="text-right font-medium">${formatCurrency(taxableIncome)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>Available Relief:</div>
+                <div className="text-right font-medium">${formatCurrency(remainingRelief)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm border-t pt-2">
+                <div>Potential Taxable Income:</div>
+                <div className="text-right font-medium">${formatCurrency(potentialTaxableIncome)}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm text-primary font-medium">
+                <div>Potential Tax Savings:</div>
+                <div className="text-right">${formatCurrency(potentialSavings)}</div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t">
+              <p className="text-sm">
+                You can still contribute up to ${formatCurrency(remainingRelief)} to your
+                {citizenshipStatus === 'FOREIGNER' ? ' SRS account ' : ' tax relief '} 
+                to maximize your tax savings.
+              </p>
+            </div>
+
             <div className="grid gap-2">
               <Button variant="outline" className="justify-start" asChild>
                 <a 
