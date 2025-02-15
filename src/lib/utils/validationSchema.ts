@@ -10,6 +10,16 @@ export const taxCalculatorSchema = z.object({
   taxpayerType: z.enum(['EMPLOYEE', 'SOLE_PROPRIETOR', 'CORPORATION'], {
     required_error: 'Please select a taxpayer type',
   }),
+  cpfTopUp: z.number()
+    .min(0, 'CPF top-up must be a positive number')
+    .max(8000, 'Maximum CPF top-up relief is $8,000')
+    .optional()
+    .default(0),
+  srsContribution: z.number()
+    .min(0, 'SRS contribution must be a positive number')
+    .max(15300, 'Maximum SRS contribution for citizens is $15,300')
+    .optional()
+    .default(0),
 });
 
 export type TaxCalculatorInputs = z.infer<typeof taxCalculatorSchema>; 

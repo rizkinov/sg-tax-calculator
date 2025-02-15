@@ -24,11 +24,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { TaxPieChart } from './TaxPieChart';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { InfoIcon } from 'lucide-react';
 
 export function TaxCalculator() {
   const [result, setResult] = useState<{
     totalTax: number;
     breakdown: ReturnType<typeof calculateTaxBreakdown>;
+    totalRelief: number;
+    taxableIncome: number;
   } | null>(null);
 
   const form = useForm<TaxCalculatorInputs>({
@@ -40,9 +49,16 @@ export function TaxCalculator() {
   });
 
   function onSubmit(data: TaxCalculatorInputs) {
-    const totalTax = calculateTax(data.income, data.taxpayerType as TaxPayerType);
-    const breakdown = calculateTaxBreakdown(data.income, data.taxpayerType as TaxPayerType);
-    setResult({ totalTax, breakdown });
+    const totalRelief = (data.cpfTopUp || 0) + (data.srsContribution || 0);
+    const taxableIncome = Math.max(0, data.income - totalRelief);
+    const totalTax = calculateTax(taxableIncome, data.taxpayerType as TaxPayerType);
+    const breakdown = calculateTaxBreakdown(taxableIncome, data.taxpayerType as TaxPayerType);
+    setResult({ 
+      totalTax, 
+      breakdown,
+      totalRelief,
+      taxableIncome: taxableIncome,
+    });
   }
 
   return (
@@ -103,6 +119,84 @@ export function TaxCalculator() {
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="cpfTopUp"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-2">
+                  <FormLabel>CPF Cash Top-up (Optional)</FormLabel>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>Maximum tax relief:</p>
+                        <ul className="list-disc ml-4 mt-1">
+                          <li>Own account: Up to $8,000</li>
+                          <li>Family members: Additional $8,000</li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Enter CPF top-up amount"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === '' ? 0 : Number(value));
+                    }}
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="srsContribution"
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center gap-2">
+                  <FormLabel>SRS Contribution (Optional)</FormLabel>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>Maximum contribution:</p>
+                        <ul className="list-disc ml-4 mt-1">
+                          <li>Singapore Citizens & PR: $15,300</li>
+                          <li>Foreigners: $35,700</li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Enter SRS contribution"
+                    {...field}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === '' ? 0 : Number(value));
+                    }}
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit">Calculate Tax</Button>
         </form>
       </Form>
@@ -111,8 +205,11 @@ export function TaxCalculator() {
         <div className="mt-8 space-y-8">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Tax Calculation Results</h2>
-            <div className="p-4 border rounded">
-              <p className="font-bold">
+            <div className="p-4 border rounded space-y-2">
+              <p>Gross Income: {formatCurrency(form.getValues('income'))}</p>
+              <p>Total Relief: {formatCurrency(result.totalRelief)}</p>
+              <p>Taxable Income: {formatCurrency(result.taxableIncome)}</p>
+              <p className="font-bold border-t pt-2">
                 Total Tax: {formatCurrency(result.totalTax)}
               </p>
             </div>
