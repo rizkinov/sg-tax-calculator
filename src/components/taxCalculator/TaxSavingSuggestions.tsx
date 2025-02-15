@@ -82,6 +82,15 @@ export function TaxSavingSuggestions({
   // Check if we can reach lower bracket
   const canReachLowerBracket = newTaxableIncome <= previousBracket.max;
 
+  // Calculate current tax savings (from current relief)
+  const currentTaxSavings = calculateTax(income, 'EMPLOYEE') - currentTax;
+
+  // Calculate potential additional tax savings (if max relief is used)
+  const additionalTaxSavings = currentTax - newTax;
+  const totalPotentialSavings = currentTaxSavings + additionalTaxSavings;
+
+  if (additionalTaxSavings <= 0) return null;
+
   return (
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
@@ -119,9 +128,20 @@ export function TaxSavingSuggestions({
           </>
         )}
 
-        <p className="font-medium text-primary">
-          Potential tax savings: {formatCurrency(taxSavings)}
-        </p>
+        <div className="space-y-2 text-sm">
+          <div className="grid grid-cols-2 gap-2">
+            <div>Current Tax Savings:</div>
+            <div className="text-right font-medium">${formatCurrency(currentTaxSavings)}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>Additional Potential Savings:</div>
+            <div className="text-right font-medium text-primary">${formatCurrency(additionalTaxSavings)}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-2 border-t pt-2">
+            <div>Total Potential Savings:</div>
+            <div className="text-right font-medium">${formatCurrency(totalPotentialSavings)}</div>
+          </div>
+        </div>
 
         <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
           <div>
