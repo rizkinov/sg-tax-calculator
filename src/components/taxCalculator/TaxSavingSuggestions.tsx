@@ -144,12 +144,14 @@ export function TaxSavingSuggestions({
         {canReachLowerBracket ? (
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
-            <p>
+            <p className="mb-2">
               You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
             </p>
+            <p className="mb-2">
+              To move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket, you must contribute at least {formatCurrency(taxableIncome - previousBracket.max)} in eligible tax relief.
+            </p>
             <p>
-              By contributing an additional {formatCurrency(remainingReliefCapacity)} to your eligible tax relief,
-              you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+              You may contribute up to {formatCurrency(remainingReliefCapacity)}—any contribution within this range will lower your taxable income and help you benefit from the lower tax rate.
             </p>
           </>
         ) : (
@@ -158,12 +160,13 @@ export function TaxSavingSuggestions({
               <PartyPopper className="h-5 w-5 text-primary" />
               <h3 className="font-semibold text-lg">Tax Optimization Note</h3>
             </div>
-            <p>
-              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket. Even with maximum available relief 
-              (additional {formatCurrency(remainingReliefCapacity)}), you would remain in this bracket.
+            <p className="mb-2">
+              You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
             </p>
             <p>
-              However, you can still save on taxes by maximizing your eligible relief!
+              While you'll remain in this bracket even with maximum relief contributions, 
+              you can still save {formatCurrency(additionalTaxSavings)} in taxes by utilizing your remaining 
+              eligible relief of {formatCurrency(remainingReliefCapacity)}.
             </p>
           </>
         )}
