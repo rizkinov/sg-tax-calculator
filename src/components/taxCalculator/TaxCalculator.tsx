@@ -2,7 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TaxCalculatorInputs, taxCalculatorSchema } from '@/lib/utils/validationSchema';
 import { calculateTax, calculateTaxBreakdown, TaxPayerType } from '@/lib/utils/taxCalculator';
 import {
@@ -52,6 +52,26 @@ export function TaxCalculator() {
     },
   });
 
+  // Add watch to trigger recalculation when values change
+  const watchedValues = form.watch();
+  
+  useEffect(() => {
+    // Only calculate if we have an income value
+    if (watchedValues.income) {
+      const data = form.getValues();
+      const totalRelief = (data.cpfTopUp || 0) + (data.srsContribution || 0);
+      const taxableIncome = Math.max(0, data.income - totalRelief);
+      const totalTax = calculateTax(taxableIncome, data.taxpayerType as TaxPayerType);
+      const breakdown = calculateTaxBreakdown(taxableIncome, data.taxpayerType as TaxPayerType);
+      setResult({ 
+        totalTax, 
+        breakdown,
+        totalRelief,
+        taxableIncome,
+      });
+    }
+  }, [watchedValues, form]);
+
   function onSubmit(data: TaxCalculatorInputs) {
     const totalRelief = (data.cpfTopUp || 0) + (data.srsContribution || 0);
     const taxableIncome = Math.max(0, data.income - totalRelief);
@@ -61,7 +81,7 @@ export function TaxCalculator() {
       totalTax, 
       breakdown,
       totalRelief,
-      taxableIncome: taxableIncome,
+      taxableIncome,
     });
   }
 
