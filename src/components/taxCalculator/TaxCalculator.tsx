@@ -316,7 +316,9 @@ export function TaxCalculator() {
             <p className="font-medium">Disclaimer:</p>
             <p>
               Tax calculations are based on IRAS guidelines projected for Year of Assessment 2024 
-              (income earned in 2023). Rates and thresholds may change. Please verify with{' '}
+              (income earned in 2023). It does not account for other tax relief measures such as 
+              Earned Income Relief, Spouse Relief, Child Relief, Course Fee Relief, etc. Rates and 
+              thresholds may change. Please verify with{' '}
               <a 
                 href="https://www.iras.gov.sg" 
                 target="_blank" 
