@@ -16,7 +16,7 @@ import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculato
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon, PartyPopper } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
->>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
+import { cn } from "@/lib/utils";
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -34,96 +34,104 @@ export function TaxSavingSuggestions({
   const MAX_CPF_RELIEF = citizenshipStatus === 'CITIZEN_PR' ? 16000 : 0;
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
-  
-  const isMaximized = citizenshipStatus === 'FOREIGNER' 
-    ? currentRelief >= MAX_SRS 
-    : currentRelief >= TOTAL_MAX_RELIEF;
 
-<<<<<<< HEAD
-  if (taxableIncome <= 20000) return null;
-=======
+  // Calculate remaining relief capacity by type
+  const remainingSRSCapacity = MAX_SRS - (
+    citizenshipStatus === 'FOREIGNER' ? currentRelief : Math.min(currentRelief, MAX_SRS)
+  );
+  const remainingCPFCapacity = citizenshipStatus === 'CITIZEN_PR' ? 
+    Math.max(0, MAX_CPF_RELIEF - Math.max(0, currentRelief - MAX_SRS)) : 0;
+  
+  const remainingReliefCapacity = remainingSRSCapacity + remainingCPFCapacity;
+  const isOverLimit = currentRelief > TOTAL_MAX_RELIEF;
+
+  // Check if relief is already maximized
+  const isMaximized = currentRelief >= TOTAL_MAX_RELIEF || 
+    (citizenshipStatus === 'FOREIGNER' && currentRelief >= MAX_SRS);
+
   // Early returns
   if (taxableIncome <= 20000) return null;
-  if (remainingReliefCapacity <= 0) return null;
->>>>>>> parent of b36dd81 (Update TaxSavingSuggestions.tsx)
+  if (remainingReliefCapacity <= 0 && !isMaximized) return null;
 
-  const remainingRelief = MAX_SRS - currentRelief;
-  const potentialSavings = (remainingRelief * (citizenshipStatus === 'FOREIGNER' ? 0.22 : 0.20));
+  // Find current tax bracket
+  const currentBracket = PROGRESSIVE_TAX_BRACKETS.find(
+    bracket => taxableIncome >= bracket.min && (bracket.max === null || taxableIncome <= bracket.max)
+  );
+  if (!currentBracket) return null;
+
+  // Find the next lower bracket
+  const currentBracketIndex = PROGRESSIVE_TAX_BRACKETS.indexOf(currentBracket);
+  if (currentBracketIndex <= 0) return null;
+
+  const previousBracket = PROGRESSIVE_TAX_BRACKETS[currentBracketIndex - 1];
+  if (!previousBracket.max) return null;
+
+  // Calculate current tax
+  const currentTax = calculateTax(taxableIncome, 'EMPLOYEE');
+
+  // Calculate tax with maximum possible additional relief
+  const possibleRelief = Math.min(
+    remainingReliefCapacity,
+    citizenshipStatus === 'FOREIGNER' ? 
+      Math.min(remainingSRSCapacity, income - taxableIncome) :
+      Math.min(
+        // For Citizens/PR, consider both SRS and CPF limits
+        remainingSRSCapacity + remainingCPFCapacity,
+        income - taxableIncome
+      )
+  );
+  const newTaxableIncome = taxableIncome - possibleRelief;
+  const newTax = calculateTax(newTaxableIncome, 'EMPLOYEE');
   
-  // Calculate potential taxable income after maximizing relief
-  const potentialTaxableIncome = Math.max(0, taxableIncome - remainingRelief);
+  // Calculate tax savings
+  const taxSavings = currentTax - newTax;
+  if (taxSavings <= 0) return null;
+
+  // Check if we can reach lower bracket
+  const canReachLowerBracket = newTaxableIncome <= previousBracket.max;
 
   return (
-<<<<<<< HEAD
-    <div className="rounded-lg border bg-white p-4">
-      {isMaximized ? (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Trophy className="h-6 w-6 text-yellow-500" />
-            <h3 className="font-semibold text-lg">Congratulations!</h3>
-            <Badge variant="success">Maximum Relief Achieved</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            You have maximized your {citizenshipStatus === 'FOREIGNER' ? 'SRS contributions' : 'tax relief contributions'}!
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-lg">Tax Relief Progress</h3>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <InfoIcon className="h-4 w-4 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Maximum relief limits:</p>
-                  {citizenshipStatus === 'CITIZEN_PR' ? (
-                    <ul className="list-disc ml-4 mt-2">
-                      <li>SRS: $15,300</li>
-                      <li>CPF Top-up: $16,000</li>
-                    </ul>
-                  ) : (
-                    <ul className="list-disc ml-4 mt-2">
-                      <li>SRS: $35,700</li>
-                    </ul>
-                  )}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          <div className="space-y-4 bg-muted/50 p-4 rounded-lg">
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Current Taxable Income:</div>
-                <div className="text-right font-medium">${formatCurrency(taxableIncome)}</div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>Available Relief:</div>
-                <div className="text-right font-medium">${formatCurrency(remainingRelief)}</div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm border-t pt-2">
-                <div>Potential Taxable Income:</div>
-                <div className="text-right font-medium">${formatCurrency(potentialTaxableIncome)}</div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm text-primary font-medium">
-                <div>Potential Tax Savings:</div>
-                <div className="text-right">${formatCurrency(potentialSavings)}</div>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t">
-              <p className="text-sm">
-                You can still contribute up to ${formatCurrency(remainingRelief)} to your
-                {citizenshipStatus === 'FOREIGNER' ? ' SRS account ' : ' tax relief '} 
-                to maximize your tax savings.
-              </p>
-            </div>
-=======
     <Card className="p-4 bg-muted/50">
       <div className="space-y-2">
-        {canReachLowerBracket ? (
+        {isMaximized ? (
+          <>
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="h-5 w-5 text-yellow-500" />
+              <h3 className="font-semibold text-lg">Congratulations!</h3>
+            </div>
+            <div className="space-y-2">
+              <p>
+                You have maximized your {citizenshipStatus === 'FOREIGNER' ? 'SRS contributions' : 'tax relief contributions'}!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Current utilization:
+                {citizenshipStatus === 'CITIZEN_PR' ? (
+                  <ul className="list-disc ml-6 mt-1 space-y-1">
+                    <li>
+                      SRS: ${formatCurrency(Math.min(currentRelief, MAX_SRS))} 
+                      of ${formatCurrency(MAX_SRS)}
+                    </li>
+                    <li>
+                      CPF Cash Top-up: ${formatCurrency(Math.max(0, currentRelief - MAX_SRS))} 
+                      of ${formatCurrency(MAX_CPF_RELIEF)}
+                    </li>
+                    <li className="font-medium">
+                      Total: ${formatCurrency(currentRelief)} 
+                      of ${formatCurrency(TOTAL_MAX_RELIEF)}
+                    </li>
+                  </ul>
+                ) : (
+                  <ul className="list-disc ml-6 mt-1">
+                    <li>
+                      SRS: ${formatCurrency(currentRelief)} 
+                      of ${formatCurrency(MAX_SRS)}
+                    </li>
+                  </ul>
+                )}
+              </p>
+            </div>
+          </>
+        ) : canReachLowerBracket ? (
           <>
             <h3 className="font-semibold text-lg mb-2">Tax Saving Opportunity</h3>
             <p>
