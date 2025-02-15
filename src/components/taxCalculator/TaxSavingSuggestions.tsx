@@ -17,7 +17,7 @@ export function TaxSavingSuggestions({
   taxableIncome,
   citizenshipStatus 
 }: TaxSavingSuggestionsProps) {
-  const MAX_CPF_RELIEF = 16000;
+  const MAX_CPF_RELIEF = citizenshipStatus === 'CITIZEN_PR' ? 16000 : 0;
   const MAX_SRS = citizenshipStatus === 'FOREIGNER' ? 35700 : 15300;
   const TOTAL_MAX_RELIEF = MAX_CPF_RELIEF + MAX_SRS;
 
@@ -85,7 +85,9 @@ export function TaxSavingSuggestions({
         <p className="text-sm text-muted-foreground mt-2">
           Maximum relief limits for {citizenshipStatus === 'FOREIGNER' ? 'Foreigners' : 'Citizens & PR'}:
           <ul className="list-disc ml-6 mt-1">
-            <li>CPF Cash Top-up: Up to $16,000 ($8,000 own account + $8,000 family members)</li>
+            {citizenshipStatus === 'CITIZEN_PR' && (
+              <li>CPF Cash Top-up: Up to $16,000 ($8,000 own account + $8,000 family members)</li>
+            )}
             <li>SRS Contributions: Up to ${formatCurrency(MAX_SRS)}</li>
             <li>Total combined limit: Up to ${formatCurrency(TOTAL_MAX_RELIEF)}</li>
           </ul>
