@@ -145,6 +145,12 @@ Calculation:
    - Taxable Income: $95,000 ($100,000 - $5,000)
    - Current Tax Bracket: 11.5% (taxable income between $80,000 to $120,000)
    - Total Tax: $5,350
+     * First $20,000: $0
+     * Next $10,000 at 2%: $200
+     * Next $10,000 at 3.5%: $350
+     * Next $40,000 at 7%: $2,800
+     * Last $15,000 at 11.5%: $1,725
+     * Total: $5,075
 
 2. Tax Saving Opportunity:
    - Next Lower Bracket: 7% (applies to income between $40,000 to $80,000)
@@ -153,11 +159,16 @@ Calculation:
    - Current Relief Used: $5,000
    - Remaining Relief Capacity: $26,300
    - Tax Savings Calculation:
-     * Current Tax: $5,350
+     * Current Tax: $5,075
      * New Taxable Income: $80,000 ($100,000 - $20,000)
      * Tax After Relief: $3,350
-     * Total Tax Savings: $2,000
-     * Mixed Savings Rate: First $15,000 saves at 11.5%
+       - First $20,000: $0
+       - Next $10,000 at 2%: $200
+       - Next $10,000 at 3.5%: $350
+       - Last $40,000 at 7%: $2,800
+       - Total: $3,350
+     * Total Tax Savings: $1,725
+     * Effective Rate: 11.5% (saving the full marginal rate on the $15,000 reduction)
 
 Note: The calculator computes tax savings by calculating the complete tax liability before and after relief, using Singapore's progressive tax rate structure. This provides more accurate savings figures compared to using just the marginal rate difference, especially when the additional relief doesn't change your tax bracket.
 
