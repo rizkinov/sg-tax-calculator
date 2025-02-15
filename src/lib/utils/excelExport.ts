@@ -15,6 +15,40 @@ interface ExportData {
   srsContribution?: number;
 }
 
+interface TaxOptimizationData {
+  currentBracket: {
+    rate: number;
+    min: number;
+    max: number | null;
+  };
+  currentTaxSavings: number;
+  additionalTaxSavings: number;
+  totalPotentialSavings: number;
+  remainingCapacity: {
+    cpf: number;
+    srs: number;
+    total: number;
+  };
+  currentTax: {
+    taxableIncome: number;
+    breakdown: {
+      bracket: { min: number; max: number | null; rate: number };
+      taxableAmount: number;
+      taxForBracket: number;
+    }[];
+    totalTax: number;
+  };
+  potentialTax: {
+    taxableIncome: number;
+    breakdown: {
+      bracket: { min: number; max: number | null; rate: number };
+      taxableAmount: number;
+      taxForBracket: number;
+    }[];
+    totalTax: number;
+  };
+}
+
 export function exportToExcel(data: ExportData) {
   // Create workbook and worksheet
   const wb = XLSX.utils.book_new();
@@ -58,4 +92,79 @@ export function exportToExcel(data: ExportData) {
 
   // Generate Excel file
   XLSX.writeFile(wb, 'singapore-tax-calculation.xlsx');
+}
+
+export function exportTaxOptimizationToExcel(data: TaxOptimizationData) {
+  const wb = XLSX.utils.book_new();
+
+  // Summary data
+  const summaryData = [
+    ['Tax Optimization Summary', ''],
+    ['', ''],
+    ['Current Tax Bracket', `${(data.currentBracket.rate * 100).toFixed(1)}%`],
+    ['', ''],
+    ['Tax Savings', ''],
+    ['Current Tax Savings', formatCurrency(data.currentTaxSavings)],
+    ['Additional Potential Savings', formatCurrency(data.additionalTaxSavings)],
+    ['Total Potential Savings', formatCurrency(data.totalPotentialSavings)],
+    ['', ''],
+    ['Available Relief Capacity', ''],
+    ['CPF Cash Top-up', formatCurrency(data.remainingCapacity.cpf)],
+    ['SRS Contribution', formatCurrency(data.remainingCapacity.srs)],
+    ['Total Available', formatCurrency(data.remainingCapacity.total)],
+    ['', ''],
+    ['Current Tax Breakdown', ''],
+    ['Taxable Income', formatCurrency(data.currentTax.taxableIncome)],
+    ['Total Tax', formatCurrency(data.currentTax.totalTax)],
+  ];
+
+  // Create worksheet
+  const ws = XLSX.utils.aoa_to_sheet(summaryData);
+
+  // Add current tax breakdown
+  const currentBreakdownRows = data.currentTax.breakdown.map(item => ({
+    'Tax Rate': `${(item.bracket.rate * 100).toFixed(1)}%`,
+    'Income Range': item.bracket.max ? 
+      `${formatCurrency(item.bracket.min)} - ${formatCurrency(item.bracket.max)}` :
+      `Above ${formatCurrency(item.bracket.min)}`,
+    'Taxable Amount': formatCurrency(item.taxableAmount),
+    'Tax': formatCurrency(item.taxForBracket)
+  }));
+
+  XLSX.utils.sheet_add_json(ws, currentBreakdownRows, {
+    origin: 'A18'
+  });
+
+  // Add potential tax section
+  const potentialTaxStart = 19 + currentBreakdownRows.length;
+  const potentialTaxData = [
+    ['', ''],
+    ['Tax After Relief', ''],
+    ['Taxable Income', formatCurrency(data.potentialTax.taxableIncome)],
+    ['Total Tax', formatCurrency(data.potentialTax.totalTax)],
+  ];
+
+  XLSX.utils.sheet_add_aoa(ws, potentialTaxData, {
+    origin: `A${potentialTaxStart}`
+  });
+
+  // Add potential tax breakdown
+  const potentialBreakdownRows = data.potentialTax.breakdown.map(item => ({
+    'Tax Rate': `${(item.bracket.rate * 100).toFixed(1)}%`,
+    'Income Range': item.bracket.max ? 
+      `${formatCurrency(item.bracket.min)} - ${formatCurrency(item.bracket.max)}` :
+      `Above ${formatCurrency(item.bracket.min)}`,
+    'Taxable Amount': formatCurrency(item.taxableAmount),
+    'Tax': formatCurrency(item.taxForBracket)
+  }));
+
+  XLSX.utils.sheet_add_json(ws, potentialBreakdownRows, {
+    origin: `A${potentialTaxStart + 4}`
+  });
+
+  // Add to workbook
+  XLSX.utils.book_append_sheet(wb, ws, 'Tax Optimization');
+
+  // Generate Excel file
+  XLSX.writeFile(wb, 'tax-optimization-details.xlsx');
 } 

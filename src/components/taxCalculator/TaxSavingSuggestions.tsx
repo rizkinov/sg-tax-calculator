@@ -3,8 +3,10 @@
 import { formatCurrency } from "@/lib/utils";
 import { PROGRESSIVE_TAX_BRACKETS, calculateTax } from "@/lib/utils/taxCalculator";
 import { Card } from "@/components/ui/card";
-import { ExternalLinkIcon, PartyPopper } from "lucide-react";
+import { ExternalLinkIcon, PartyPopper, Download } from "lucide-react";
 import { TaxBreakdown } from "./TaxBreakdown";
+import { Button } from "@/components/ui/button";
+import { exportTaxOptimizationToExcel } from '@/lib/utils/excelExport';
 
 interface TaxSavingSuggestionsProps {
   income: number;
@@ -168,39 +170,68 @@ export function TaxSavingSuggestions({
         </div>
 
         <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">Available Relief Capacity</h4>
-            <div className="space-y-2 text-sm">
-              {citizenshipStatus === 'CITIZEN_PR' ? (
-                <>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>CPF Cash Top-up:</div>
-                    <div className="text-right">
-                      {formatCurrency(remainingCPFCapacity)} remaining
-                    </div>
+          <div className="flex justify-between items-start">
+            <h4 className="font-medium">Available Relief Capacity</h4>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportTaxOptimizationToExcel({
+                currentBracket,
+                currentTaxSavings,
+                additionalTaxSavings,
+                totalPotentialSavings,
+                remainingCapacity: {
+                  cpf: remainingCPFCapacity,
+                  srs: remainingSRSCapacity,
+                  total: remainingReliefCapacity
+                },
+                currentTax: {
+                  taxableIncome,
+                  breakdown: calculateTaxBreakdown(taxableIncome, 'EMPLOYEE'),
+                  totalTax: currentTax
+                },
+                potentialTax: {
+                  taxableIncome: potentialTaxableIncome,
+                  breakdown: calculateTaxBreakdown(potentialTaxableIncome, 'EMPLOYEE'),
+                  totalTax: potentialTax
+                }
+              })}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Details
+            </Button>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            {citizenshipStatus === 'CITIZEN_PR' ? (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>CPF Cash Top-up:</div>
+                  <div className="text-right">
+                    {formatCurrency(remainingCPFCapacity)} remaining
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>SRS Contributions:</div>
-                    <div className="text-right">
-                      {formatCurrency(remainingSRSCapacity)} remaining
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
-                    <div>Total Available:</div>
-                    <div className="text-right">
-                      {formatCurrency(remainingReliefCapacity)}
-                    </div>
-                  </div>
-                </>
-              ) : (
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>SRS Contributions:</div>
                   <div className="text-right">
                     {formatCurrency(remainingSRSCapacity)} remaining
                   </div>
                 </div>
-              )}
-            </div>
+                <div className="grid grid-cols-2 gap-2 font-medium border-t pt-2">
+                  <div>Total Available:</div>
+                  <div className="text-right">
+                    {formatCurrency(remainingReliefCapacity)}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <div>SRS Contributions:</div>
+                <div className="text-right">
+                  {formatCurrency(remainingSRSCapacity)} remaining
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="border-t pt-4">
