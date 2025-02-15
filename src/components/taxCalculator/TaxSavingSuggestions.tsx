@@ -109,13 +109,13 @@ export function TaxSavingSuggestions({
             className="space-y-4"
           >
             <motion.div 
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 flex-wrap"
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 0.5, times: [0, 0.5, 1] }}
             >
               <Trophy className="h-6 w-6 text-yellow-500" />
               <h3 className="font-semibold text-lg">Congratulations!</h3>
-              <Badge variant="success" className="ml-2">
+              <Badge variant="success">
                 Maximum Relief Achieved
               </Badge>
               <motion.div
@@ -266,17 +266,10 @@ export function TaxSavingSuggestions({
             <p>
               You are currently in the {(currentBracket.rate * 100).toFixed(1)}% tax bracket.
             </p>
-            {isMaximized ? (
-              <p className="text-destructive">
-                Your current relief (${formatCurrency(currentRelief)}) exceeds the maximum combined limit of ${formatCurrency(TOTAL_MAX_RELIEF)}.
-                Consider adjusting your relief contributions to stay within the limits.
-              </p>
-            ) : (
-              <p>
-                By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
-                you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
-              </p>
-            )}
+            <p>
+              By contributing an additional {formatCurrency(possibleRelief)} to your eligible tax relief,
+              you could move to the {(previousBracket.rate * 100).toFixed(1)}% tax bracket.
+            </p>
           </>
         ) : (
           <>
