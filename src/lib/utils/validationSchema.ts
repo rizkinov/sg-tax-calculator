@@ -36,6 +36,14 @@ export const taxCalculatorSchema = baseSchema.superRefine((data, ctx) => {
       path: ['srsContribution'],
     });
   }
+
+  if (data.citizenshipStatus === 'FOREIGNER' && data.cpfTopUp > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Foreigners are not eligible for CPF Cash Top-up',
+      path: ['cpfTopUp'],
+    });
+  }
 });
 
 export type TaxCalculatorInputs = z.infer<typeof taxCalculatorSchema>; 

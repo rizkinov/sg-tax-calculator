@@ -108,7 +108,13 @@ export function TaxCalculator() {
                 <FormItem>
                   <FormLabel>Citizenship Status</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      // Reset CPF top-up when switching to foreigner
+                      if (value === 'FOREIGNER') {
+                        form.setValue('cpfTopUp', 0);
+                      }
+                    }}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -150,45 +156,48 @@ export function TaxCalculator() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="cpfTopUp"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center gap-2">
-                  <FormLabel>CPF Cash Top-up (Optional)</FormLabel>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger type="button" onClick={(e) => e.preventDefault()}>
-                        <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Maximum tax relief:</p>
-                        <ul className="list-disc ml-4 mt-1">
-                          <li>Own account: Up to $8,000</li>
-                          <li>Family members: Up to $8,000</li>
-                          <li>Total maximum: $16,000</li>
-                        </ul>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Enter CPF top-up amount"
-                    {...field}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === '' ? 0 : Number(value));
-                    }}
-                    value={field.value || ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {form.watch('taxpayerType') !== 'CORPORATION' && 
+           form.watch('citizenshipStatus') === 'CITIZEN_PR' && (
+            <FormField
+              control={form.control}
+              name="cpfTopUp"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex items-center gap-2">
+                    <FormLabel>CPF Cash Top-up (Optional)</FormLabel>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger type="button" onClick={(e) => e.preventDefault()}>
+                          <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Maximum tax relief:</p>
+                          <ul className="list-disc ml-4 mt-1">
+                            <li>Own account: Up to $8,000</li>
+                            <li>Family members: Up to $8,000</li>
+                            <li>Total maximum: $16,000</li>
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter CPF top-up amount"
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === '' ? 0 : Number(value));
+                      }}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
