@@ -110,10 +110,7 @@ export function TaxSavingSuggestions({
             <div className="grid gap-2">
               <Button variant="outline" className="justify-start" asChild>
                 <a 
-                  href={citizenshipStatus === 'FOREIGNER' 
-                    ? "https://www.iras.gov.sg/taxes/individual-income-tax/foreigners/tax-reliefs-for-foreigners"
-                    : "https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/tax-reliefs-rebates-and-deductions"
-                  }
+                  href="https://www.iras.gov.sg/taxes"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
