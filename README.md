@@ -35,14 +35,20 @@ Flat rate of 17% on chargeable income.
 
 ### Tax Relief Options
 
-1. **CPF Cash Top-up**
-   - Maximum $8,000 for own account
-   - Additional $8,000 for family members
-   - Total maximum: $16,000
+The calculator supports two main types of tax relief with their respective limits:
 
-2. **SRS Contributions**
+1. **CPF Cash Top-up Relief**
+   - Own CPF Account: Up to $8,000
+   - Family Members' CPF Accounts: Up to $8,000
+   - Total CPF Relief Limit: $16,000
+
+2. **Supplementary Retirement Scheme (SRS) Relief**
    - Singapore Citizens & PR: Up to $15,300
    - Foreigners: Up to $35,700
+
+Maximum Combined Relief:
+- Citizens & PR: Up to $31,300 ($16,000 CPF + $15,300 SRS)
+- Foreigners: Up to $51,700 ($16,000 CPF + $35,700 SRS)
 
 ### Tax Savings Calculation
 
@@ -54,7 +60,7 @@ The tax savings suggestion feature works by:
 
 2. **Relief Calculation**
    - Calculates how much additional relief is needed to move to the lower bracket
-   - Considers remaining relief capacity (up to maximum limits)
+   - Considers remaining relief capacity (based on citizenship status)
    - Suggests the smaller amount between:
      - Relief needed to reach lower bracket
      - Remaining relief capacity
@@ -66,6 +72,8 @@ The tax savings suggestion feature works by:
    - Suggested relief: $8,000
    - Tax savings = Relief amount × (Current rate - Lower rate)
    - $8,000 × (18% - 15%) = $240 in tax savings
+
+The calculator will suggest optimal relief contributions while ensuring you stay within the maximum relief limits based on the type of relief and your residency status.
 
 ## Development
 
@@ -79,4 +87,4 @@ Built with:
 
 ## Disclaimer
 
-This calculator provides unofficial estimates only. All calculations should be verified with IRAS for the most current rates and regulations. 
+This calculator provides unofficial estimates only. All calculations should be verified with IRAS for the most current rates and regulations. Tax relief limits and eligibility criteria may change - please consult IRAS or a tax professional for the most up-to-date information. 
